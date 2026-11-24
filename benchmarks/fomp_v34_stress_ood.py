@@ -132,7 +132,11 @@ def _load_zsre_test(
         return 1 <= len(ids) <= max_tgt_tokens
 
     ds = None
-    for repo in ("CrowdMind/ZsRE", "gjyotin305/full_zsre"):
+    local_zsre = Path("zsre_test.jsonl")
+    if local_zsre.exists() and local_zsre.stat().st_size > 1000:
+        ds = load_dataset("json", data_files=str(local_zsre), split="train")
+        print(f"[S2 ZsRE] Loaded local {local_zsre} ({len(ds)} rows)", flush=True)
+    for repo in (() if ds is not None else ("CrowdMind/ZsRE", "gjyotin305/full_zsre")):
         try:
             # Fetch only the 7.7MB test split when available to avoid downloading unused 66MB train.jsonl
             try:

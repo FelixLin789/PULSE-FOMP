@@ -15,6 +15,7 @@ from pulse.experiment import (
     FairMuonAdamW,
 )
 from pulse.fomp_v3 import FOMPv3BackboneWrapper, FOMPv3Config, FOMPv3Module
+from pulse.fomp_v4 import FOMPv4BackboneWrapper, FOMPv4Config, FOMPv4Module
 from pulse.local_learning import LocalIOUpdater, LocalSynapticOptimizer
 from pulse.manifold import (
     ConceptManifoldProjection,
@@ -58,7 +59,7 @@ from pulse.v3_blocks import (
     TriSignalContrastiveCritic,
 )
 
-__version__ = "0.8.6"
+__version__ = "0.9.0"
 
 __all__ = [
     "PULSEConfig",
@@ -80,6 +81,9 @@ __all__ = [
     "FOMPv3Config",
     "FOMPv3Module",
     "FOMPv3BackboneWrapper",
+    "FOMPv4Config",
+    "FOMPv4Module",
+    "FOMPv4BackboneWrapper",
     "CanonLayer",
     "ManifoldHyperConnection",
     "GatedDeltaNet2",
