@@ -1,0 +1,11 @@
+=== PART 1: BAYESIAN PMI + ENTROPY VARIATIONAL FREE ENERGY AUDIT ===
+[PMI 64-STORY] E_true=0.875 | E_hard=10.746 (12.28x) | E_cross=8.216 (9.39x)
+[PMI AUROC   ] Cross-Story AUROC = 0.9746 (paired=95.3%) | Hard Single-Entity Swap AUROC = 0.9756 (paired=98.4%)
+
+=== PART 2: ZERO-LAG HOURGLASS + ENGRAM (5x LR, 0 WD) SHOWDOWN ===
+[CAUSALITY VERIFIED] M=2 Zero-Lag max future-leak diff = 0.00e+00
+[CAUSALITY VERIFIED] M=4 Zero-Lag max future-leak diff = 0.00e+00
+[V4-ZEROLAG] 1. TF-Compiled (Baseline)        | params=29.12M | T=512: 204.0ms (5435MB) | T=4096: 230.3ms | ValPPL@250=43.45
+[V4-ZEROLAG] 2. PULSE-v4-M1 + Engram5x        | params=29.10M | T=512: 280.9ms (6061MB) | T=4096: 279.5ms | ValPPL@250=18.56
+[V4-ZEROLAG] 3. PULSE-v4-M2-ZeroLag+Eng5x     | params=29.05M | T=512: 235.7ms (5644MB) | T=4096: 234.7ms | ValPPL@250=21.05
+[V4-ZEROLAG] 4. PULSE-v4-M4-ZeroLag+Eng5x     | params=28.92M | T=512: 218.3ms (5404MB) | T=4096: 218.1ms | ValPPL@250=22.98

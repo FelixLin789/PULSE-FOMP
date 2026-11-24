@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pulse-ai"
+version = "0.1.0"
+description = "PULSE: Plastic Latent Dynamics Engine — Continuous Concept Manifold, Bidirectional Predictive Coding, Tri-Timescale Plastic Memory, and Local Energy Learning"
+requires-python = ">=3.11"
+dependencies = [
+    "torch>=2.4.0",
+    "numpy>=1.26.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "matplotlib>=3.8.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"

@@ -1,0 +1,23 @@
+# Python / Env / Caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.serena/
+.ipynb_checkpoints/
+
+# Large model weights, archives, and scratch runs (hosted via GitHub Releases / HF Hub)
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.zip
+*.tar.gz
+dist/
+scratch*/
+runs/
+data/
+.DS_Store
+Thumbs.db

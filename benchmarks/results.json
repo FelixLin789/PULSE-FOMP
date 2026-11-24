@@ -1,0 +1,94 @@
+{
+  "axis1_complexity_memory": {
+    "pulse_params": 238506,
+    "transformer_params": 524720,
+    "lengths": [
+      64,
+      128,
+      256,
+      512,
+      1024,
+      2048
+    ],
+    "pulse_ms": [
+      4.418399999849498,
+      6.786599999941245,
+      8.553800000299816,
+      10.561799999777577,
+      18.132199999854492,
+      32.27789999982633
+    ],
+    "transformer_ms": [
+      1.486299999669427,
+      1.6639000004943227,
+      3.8405000004786416,
+      5.380200000217883,
+      9.489699999903678,
+      82.28979999967123
+    ],
+    "pulse_state_kb": [
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5
+    ],
+    "transformer_kv_kb": [
+      120.0,
+      240.0,
+      480.0,
+      960.0,
+      1920.0,
+      3840.0
+    ],
+    "pulse_4096_state_kb": 0.5,
+    "kv_reduction_at_2048x": 7680.0,
+    "speedup_at_2048x": 2.5494161640042874
+  },
+  "axis2_adaptive_compute": {
+    "easy_mean_steps": 0.0,
+    "novel_mean_steps": 8.666666984558105,
+    "conflict_mean_steps": 28.0,
+    "easy_final_energy": 0.000783450435847044,
+    "conflict_initial_energy": 0.531914472579956,
+    "conflict_final_energy": 0.15743856132030487,
+    "transformer_fixed_layers": 3.0
+  },
+  "axis3_online_plasticity": {
+    "pulse_private_before_acc": 0.25,
+    "pulse_private_after_online_zero_ctx_acc": 1.0,
+    "pulse_base_preserved_during_online_acc": 0.8333333333333334,
+    "pulse_surprise_gate": 1.0,
+    "transformer_frozen_private_zero_ctx_acc": 0.0
+  },
+  "axis4_sleep_consolidation": {
+    "pulse_base_before_sleep_acc": 1.0,
+    "pulse_base_after_sleep_wslow_only_acc": 1.0,
+    "pulse_private_after_sleep_wslow_only_acc": 1.0,
+    "pulse_wfast_norm_after_sleep": 0.0,
+    "sleep_consolidated_episodes": 4.0,
+    "transformer_base_before_ft_acc": 1.0,
+    "transformer_base_after_ft_acc": 0.0,
+    "transformer_private_after_ft_acc": 1.0
+  },
+  "axis5_anti_hallucination": {
+    "mean_consistent_energy": 0.05459524691104889,
+    "mean_hallucinated_energy": 0.43018925189971924,
+    "energy_separation_ratio": 7.879610061645508,
+    "hallucination_detection_auroc": 1.0,
+    "attractor_revision_energy_before": 0.9188258647918701,
+    "attractor_revision_energy_after": 0.009280874393880367,
+    "attractor_revision_drop_pct": 98.9899218082428
+  },
+  "axis6_local_learning": {
+    "pulse_async_local_acc": 1.0,
+    "pulse_final_action_loss": 0.025655463337898254,
+    "pulse_autograd_tensors_created": 0,
+    "pulse_step_traced_kb": 15.77734375,
+    "transformer_backprop_acc": 1.0,
+    "transformer_autograd_tensors_created": 35,
+    "transformer_step_traced_kb": 20.4521484375
+  },
+  "elapsed_seconds": 8.312570099999903
+}

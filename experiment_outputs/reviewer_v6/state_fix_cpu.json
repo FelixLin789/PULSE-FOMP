@@ -1,0 +1,22 @@
+{
+  "device": "cpu",
+  "dtype": "float32",
+  "batch": 1,
+  "preset": "colab_30m",
+  "random_initialization": true,
+  "prefill": {
+    "512": {
+      "logical_bytes": 4690944,
+      "backing_bytes": 4690944
+    },
+    "4096": {
+      "logical_bytes": 4690944,
+      "backing_bytes": 4690944
+    },
+    "8192": {
+      "logical_bytes": 4690944,
+      "backing_bytes": 4690944
+    }
+  },
+  "continuation_bytes": 4690944
+}

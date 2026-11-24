@@ -1,0 +1,20 @@
+{
+  "64": {
+    "logical_bytes": 32448,
+    "backing_bytes": 270528,
+    "empty_bank": true,
+    "max_logit_delta_no_fast": 0.0,
+    "max_logit_delta_no_core": 0.0,
+    "pulse_future_suffix_delta": 0.0,
+    "transformer_future_suffix_delta": 0.0
+  },
+  "128": {
+    "logical_bytes": 32448,
+    "backing_bytes": 532672,
+    "empty_bank": true,
+    "max_logit_delta_no_fast": 0.0,
+    "max_logit_delta_no_core": 0.0,
+    "pulse_future_suffix_delta": 0.0,
+    "transformer_future_suffix_delta": 0.0
+  }
+}

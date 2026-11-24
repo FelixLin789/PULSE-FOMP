@@ -1,0 +1,332 @@
+[
+  {
+    "step": 60,
+    "length": 8,
+    "pairs": 1,
+    "accuracy": 0.046875
+  },
+  {
+    "step": 120,
+    "length": 8,
+    "pairs": 1,
+    "accuracy": 0.21875
+  },
+  {
+    "step": 180,
+    "length": 8,
+    "pairs": 1,
+    "accuracy": 0.640625
+  },
+  {
+    "step": 240,
+    "length": 8,
+    "pairs": 1,
+    "accuracy": 0.828125
+  },
+  {
+    "step": 300,
+    "length": 8,
+    "pairs": 1,
+    "accuracy": 1.0
+  },
+  {
+    "step": 360,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.0546875
+  },
+  {
+    "step": 420,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.0859375
+  },
+  {
+    "step": 480,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.1015625
+  },
+  {
+    "step": 540,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.0859375
+  },
+  {
+    "step": 600,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.078125
+  },
+  {
+    "step": 660,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.1015625
+  },
+  {
+    "step": 720,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.0859375
+  },
+  {
+    "step": 780,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.09375
+  },
+  {
+    "step": 840,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.1171875
+  },
+  {
+    "step": 900,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.125
+  },
+  {
+    "step": 960,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.1484375
+  },
+  {
+    "step": 1020,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.171875
+  },
+  {
+    "step": 1080,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.2109375
+  },
+  {
+    "step": 1140,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.2578125
+  },
+  {
+    "step": 1200,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.328125
+  },
+  {
+    "step": 1260,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.4140625
+  },
+  {
+    "step": 1320,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.390625
+  },
+  {
+    "step": 1380,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.3984375
+  },
+  {
+    "step": 1440,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.5
+  },
+  {
+    "step": 1500,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.546875
+  },
+  {
+    "step": 1560,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.484375
+  },
+  {
+    "step": 1620,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.4609375
+  },
+  {
+    "step": 1680,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.46875
+  },
+  {
+    "step": 1740,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.484375
+  },
+  {
+    "step": 1800,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.53125
+  },
+  {
+    "step": 1860,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.46875
+  },
+  {
+    "step": 1920,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.4921875
+  },
+  {
+    "step": 1980,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.5078125
+  },
+  {
+    "step": 2040,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.46875
+  },
+  {
+    "step": 2100,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.5
+  },
+  {
+    "step": 2160,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.5
+  },
+  {
+    "step": 2220,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.5
+  },
+  {
+    "step": 2280,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.5078125
+  },
+  {
+    "step": 2340,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.53125
+  },
+  {
+    "step": 2400,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.5078125
+  },
+  {
+    "step": 2460,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.5
+  },
+  {
+    "step": 2520,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.5234375
+  },
+  {
+    "step": 2580,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.5234375
+  },
+  {
+    "step": 2640,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.671875
+  },
+  {
+    "step": 2700,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.6953125
+  },
+  {
+    "step": 2760,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.7734375
+  },
+  {
+    "step": 2820,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.796875
+  },
+  {
+    "step": 2880,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.84375
+  },
+  {
+    "step": 2940,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.796875
+  },
+  {
+    "step": 3000,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.875
+  },
+  {
+    "step": 3060,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.890625
+  },
+  {
+    "step": 3120,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.8984375
+  },
+  {
+    "step": 3180,
+    "length": 16,
+    "pairs": 2,
+    "accuracy": 0.9453125
+  },
+  {
+    "step": 3240,
+    "length": 32,
+    "pairs": 4,
+    "accuracy": 0.8984375
+  },
+  {
+    "step": 3300,
+    "length": 32,
+    "pairs": 4,
+    "accuracy": 0.94140625
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "device": "CPU FP32 eager",
+  "preset": "colab_30m",
+  "random_init": true,
+  "prefill": {
+    "512": {
+      "logical_bytes": 4690944,
+      "backing_bytes": 25428992
+    },
+    "4096": {
+      "logical_bytes": 4690944,
+      "backing_bytes": 201589760
+    },
+    "8192": {
+      "logical_bytes": 4690944,
+      "backing_bytes": 402916352
+    }
+  }
+}

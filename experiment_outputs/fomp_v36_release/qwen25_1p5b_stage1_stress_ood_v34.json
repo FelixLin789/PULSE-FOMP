@@ -1,0 +1,475 @@
+{
+  "device": "NVIDIA L4",
+  "backbone": "Qwen/Qwen2.5-1.5B",
+  "fomp_v34_params": 7106959,
+  "base_prose_ppl": 9.0971,
+  "s1_s2_ckpt": "/content/drive/MyDrive/Colab Notebooks/PULSE_AI/runs/fomp_v34_open_edit/fomp_v34.pt",
+  "s1_concurrency_1024": {
+    "base": {
+      "efficacy": {
+        "prob_win_pct": 23.44,
+        "gen_em_pct": 3.12,
+        "n": 64
+      },
+      "paraphrase": {
+        "prob_win_pct": 20.31,
+        "gen_em_pct": 0.0,
+        "n": 64
+      },
+      "mquake_2hop": {
+        "prob_win_pct": 0.0,
+        "gen_em_pct": 0.0,
+        "n": 0
+      },
+      "neighborhood_retain": {
+        "prob_win_pct": 81.25,
+        "gen_em_pct": 18.75,
+        "n": 64
+      },
+      "general_prose_ppl": 9.0971,
+      "extra_prompt_tokens": 0,
+      "ms_per_query": 41.89
+    },
+    "M128": {
+      "efficacy": {
+        "prob_win_pct": 100.0,
+        "gen_em_pct": 100.0,
+        "n": 64
+      },
+      "paraphrase": {
+        "prob_win_pct": 98.44,
+        "gen_em_pct": 90.62,
+        "n": 64
+      },
+      "mquake_2hop": {
+        "prob_win_pct": 0.0,
+        "gen_em_pct": 0.0,
+        "n": 0
+      },
+      "neighborhood_retain": {
+        "prob_win_pct": 81.25,
+        "gen_em_pct": 15.62,
+        "n": 64
+      },
+      "general_prose_ppl": 9.0954,
+      "extra_prompt_tokens": 0,
+      "ms_per_query": 52.25,
+      "n_compiled_facts": 128,
+      "compile_ms": 432.33,
+      "ppl_drift_vs_base": -0.0017
+    },
+    "M256": {
+      "efficacy": {
+        "prob_win_pct": 100.0,
+        "gen_em_pct": 100.0,
+        "n": 64
+      },
+      "paraphrase": {
+        "prob_win_pct": 98.44,
+        "gen_em_pct": 90.62,
+        "n": 64
+      },
+      "mquake_2hop": {
+        "prob_win_pct": 0.0,
+        "gen_em_pct": 0.0,
+        "n": 0
+      },
+      "neighborhood_retain": {
+        "prob_win_pct": 81.25,
+        "gen_em_pct": 15.62,
+        "n": 64
+      },
+      "general_prose_ppl": 9.0973,
+      "extra_prompt_tokens": 0,
+      "ms_per_query": 44.11,
+      "n_compiled_facts": 256,
+      "compile_ms": 249.61,
+      "ppl_drift_vs_base": 0.0002
+    },
+    "M512": {
+      "efficacy": {
+        "prob_win_pct": 100.0,
+        "gen_em_pct": 100.0,
+        "n": 64
+      },
+      "paraphrase": {
+        "prob_win_pct": 98.44,
+        "gen_em_pct": 90.62,
+        "n": 64
+      },
+      "mquake_2hop": {
+        "prob_win_pct": 0.0,
+        "gen_em_pct": 0.0,
+        "n": 0
+      },
+      "neighborhood_retain": {
+        "prob_win_pct": 79.69,
+        "gen_em_pct": 15.62,
+        "n": 64
+      },
+      "general_prose_ppl": 9.1002,
+      "extra_prompt_tokens": 0,
+      "ms_per_query": 44.15,
+      "n_compiled_facts": 512,
+      "compile_ms": 515.71,
+      "ppl_drift_vs_base": 0.0031
+    },
+    "M1024": {
+      "efficacy": {
+        "prob_win_pct": 100.0,
+        "gen_em_pct": 100.0,
+        "n": 64
+      },
+      "paraphrase": {
+        "prob_win_pct": 98.44,
+        "gen_em_pct": 90.62,
+        "n": 64
+      },
+      "mquake_2hop": {
+        "prob_win_pct": 0.0,
+        "gen_em_pct": 0.0,
+        "n": 0
+      },
+      "neighborhood_retain": {
+        "prob_win_pct": 76.56,
+        "gen_em_pct": 9.38,
+        "n": 64
+      },
+      "general_prose_ppl": 9.0968,
+      "extra_prompt_tokens": 0,
+      "ms_per_query": 44.88,
+      "n_compiled_facts": 1024,
+      "compile_ms": 1028.61,
+      "ppl_drift_vs_base": -0.0003,
+      "g_ext0_ppl_drift": 0.0,
+      "sign_flip": {
+        "efficacy": {
+          "prob_win_pct": 0.0,
+          "gen_em_pct": 0.0,
+          "n": 32
+        },
+        "paraphrase": {
+          "prob_win_pct": 3.12,
+          "gen_em_pct": 0.0,
+          "n": 32
+        }
+      }
+    }
+  },
+  "s2_zeroshot_zsre": {
+    "base": {
+      "n": 64,
+      "reliability": {
+        "prob_win_pct": 45.31,
+        "gen_em_pct": 0.0
+      },
+      "generality": {
+        "prob_win_pct": 43.75,
+        "gen_em_pct": 0.0
+      },
+      "locality": {
+        "token_match_vs_base_pct": 100.0,
+        "exact_seq_vs_base_pct": 100.0
+      },
+      "general_prose_ppl": 9.0971,
+      "ms_per_query": 211.05
+    },
+    "M1": {
+      "n": 16,
+      "n_compiled_facts": 1,
+      "compile_ms": 40.6,
+      "reliability": {
+        "prob_win_pct": 100.0,
+        "gen_em_pct": 37.5
+      },
+      "generality": {
+        "prob_win_pct": 100.0,
+        "gen_em_pct": 37.5
+      },
+      "locality": {
+        "token_match_vs_base_pct": 70.83,
+        "exact_seq_vs_base_pct": 68.75
+      },
+      "ppl_drift_vs_base": 0.0
+    },
+    "M16": {
+      "n": 16,
+      "reliability": {
+        "prob_win_pct": 100.0,
+        "gen_em_pct": 37.5
+      },
+      "generality": {
+        "prob_win_pct": 100.0,
+        "gen_em_pct": 31.25
+      },
+      "locality": {
+        "token_match_vs_base_pct": 15.62,
+        "exact_seq_vs_base_pct": 12.5
+      },
+      "general_prose_ppl": 9.0971,
+      "ms_per_query": 267.35,
+      "n_compiled_facts": 16,
+      "compile_ms": 50.15,
+      "ppl_drift_vs_base": 0.0
+    },
+    "M100": {
+      "n": 64,
+      "reliability": {
+        "prob_win_pct": 100.0,
+        "gen_em_pct": 45.31
+      },
+      "generality": {
+        "prob_win_pct": 95.31,
+        "gen_em_pct": 39.06
+      },
+      "locality": {
+        "token_match_vs_base_pct": 4.17,
+        "exact_seq_vs_base_pct": 0.0
+      },
+      "general_prose_ppl": 9.0961,
+      "ms_per_query": 264.32,
+      "n_compiled_facts": 100,
+      "compile_ms": 123.33,
+      "ppl_drift_vs_base": -0.001,
+      "sign_flip": {
+        "reliability": {
+          "prob_win_pct": 0.0,
+          "gen_em_pct": 0.0
+        },
+        "generality": {
+          "prob_win_pct": 0.0,
+          "gen_em_pct": 0.0
+        }
+      }
+    },
+    "M500": {
+      "n": 64,
+      "reliability": {
+        "prob_win_pct": 100.0,
+        "gen_em_pct": 43.75
+      },
+      "generality": {
+        "prob_win_pct": 92.19,
+        "gen_em_pct": 32.81
+      },
+      "locality": {
+        "token_match_vs_base_pct": 2.86,
+        "exact_seq_vs_base_pct": 0.0
+      },
+      "general_prose_ppl": 9.0989,
+      "ms_per_query": 264.97,
+      "n_compiled_facts": 500,
+      "compile_ms": 635.57,
+      "ppl_drift_vs_base": 0.0018,
+      "sign_flip": {
+        "reliability": {
+          "prob_win_pct": 0.0,
+          "gen_em_pct": 0.0
+        },
+        "generality": {
+          "prob_win_pct": 6.25,
+          "gen_em_pct": 0.0
+        }
+      }
+    }
+  },
+  "s3_relation_disjoint_ood": {
+    "seen_relations": [
+      "P101",
+      "P103",
+      "P106",
+      "P108",
+      "P127",
+      "P131",
+      "P136",
+      "P138",
+      "P1412",
+      "P159",
+      "P17",
+      "P178",
+      "P19",
+      "P20",
+      "P27",
+      "P276",
+      "P30",
+      "P36",
+      "P364",
+      "P37",
+      "P39",
+      "P413",
+      "P463",
+      "P495",
+      "P641",
+      "P740"
+    ],
+    "heldout_ood_relations": [
+      "P1303",
+      "P140",
+      "P176",
+      "P190",
+      "P264",
+      "P407",
+      "P449",
+      "P937"
+    ],
+    "train_meta": {
+      "train_steps": 1200,
+      "train_sec": 348.42,
+      "fomp_params": 7106959,
+      "final_ce": 0.8523,
+      "final_nce": 0.1546,
+      "learned_tau_rel": 0.4,
+      "learned_tau_ent": 0.4441
+    },
+    "base": {
+      "efficacy": {
+        "prob_win_pct": 20.31,
+        "gen_em_pct": 6.25,
+        "n": 64
+      },
+      "paraphrase": {
+        "prob_win_pct": 26.56,
+        "gen_em_pct": 3.12,
+        "n": 64
+      },
+      "mquake_2hop": {
+        "prob_win_pct": 0.0,
+        "gen_em_pct": 0.0,
+        "n": 0
+      },
+      "neighborhood_retain": {
+        "prob_win_pct": 75.0,
+        "gen_em_pct": 18.75,
+        "n": 64
+      },
+      "general_prose_ppl": 9.0971,
+      "extra_prompt_tokens": 0,
+      "ms_per_query": 35.86
+    },
+    "M1": {
+      "efficacy": {
+        "prob_win_pct": 100.0,
+        "gen_em_pct": 100.0,
+        "n": 16
+      },
+      "paraphrase": {
+        "prob_win_pct": 87.5,
+        "gen_em_pct": 87.5,
+        "n": 16
+      },
+      "neighborhood_retain": {
+        "prob_win_pct": 75.0,
+        "gen_em_pct": 25.0,
+        "n": 16
+      },
+      "mquake_2hop": {
+        "prob_win_pct": 0.0,
+        "gen_em_pct": 0.0,
+        "n": 0
+      },
+      "general_prose_ppl": 9.0971,
+      "extra_prompt_tokens": 0,
+      "ms_per_query": 46.71,
+      "n_compiled_facts": 1,
+      "compile_ms": 41.57,
+      "ppl_drift_vs_base": 0.0
+    },
+    "M16": {
+      "efficacy": {
+        "prob_win_pct": 100.0,
+        "gen_em_pct": 100.0,
+        "n": 16
+      },
+      "paraphrase": {
+        "prob_win_pct": 87.5,
+        "gen_em_pct": 87.5,
+        "n": 16
+      },
+      "mquake_2hop": {
+        "prob_win_pct": 0.0,
+        "gen_em_pct": 0.0,
+        "n": 0
+      },
+      "neighborhood_retain": {
+        "prob_win_pct": 75.0,
+        "gen_em_pct": 25.0,
+        "n": 16
+      },
+      "general_prose_ppl": 9.0971,
+      "extra_prompt_tokens": 0,
+      "ms_per_query": 45.06,
+      "n_compiled_facts": 16,
+      "compile_ms": 48.25,
+      "ppl_drift_vs_base": 0.0
+    },
+    "M64": {
+      "efficacy": {
+        "prob_win_pct": 96.88,
+        "gen_em_pct": 96.88,
+        "n": 64
+      },
+      "paraphrase": {
+        "prob_win_pct": 75.0,
+        "gen_em_pct": 62.5,
+        "n": 64
+      },
+      "mquake_2hop": {
+        "prob_win_pct": 0.0,
+        "gen_em_pct": 0.0,
+        "n": 0
+      },
+      "neighborhood_retain": {
+        "prob_win_pct": 71.88,
+        "gen_em_pct": 12.5,
+        "n": 64
+      },
+      "general_prose_ppl": 9.0971,
+      "extra_prompt_tokens": 0,
+      "ms_per_query": 45.72,
+      "n_compiled_facts": 64,
+      "compile_ms": 69.41,
+      "ppl_drift_vs_base": 0.0
+    },
+    "M128": {
+      "efficacy": {
+        "prob_win_pct": 96.88,
+        "gen_em_pct": 96.88,
+        "n": 64
+      },
+      "paraphrase": {
+        "prob_win_pct": 73.44,
+        "gen_em_pct": 62.5,
+        "n": 64
+      },
+      "mquake_2hop": {
+        "prob_win_pct": 0.0,
+        "gen_em_pct": 0.0,
+        "n": 0
+      },
+      "neighborhood_retain": {
+        "prob_win_pct": 71.88,
+        "gen_em_pct": 12.5,
+        "n": 64
+      },
+      "general_prose_ppl": 9.0991,
+      "extra_prompt_tokens": 0,
+      "ms_per_query": 45.08,
+      "n_compiled_facts": 128,
+      "compile_ms": 122.04,
+      "ppl_drift_vs_base": 0.002,
+      "g_ext0_ppl_drift": 0.0,
+      "sign_flip": {
+        "efficacy": {
+          "prob_win_pct": 0.0,
+          "gen_em_pct": 0.0,
+          "n": 32
+        },
+        "paraphrase": {
+          "prob_win_pct": 15.62,
+          "gen_em_pct": 6.25,
+          "n": 32
+        }
+      }
+    }
+  }
+}

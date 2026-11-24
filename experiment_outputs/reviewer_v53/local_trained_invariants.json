@@ -1,0 +1,29 @@
+{
+  "256": {
+    "logical_bytes": 32448,
+    "backing_bytes": 1056960,
+    "empty_bank": true,
+    "max_logit_delta_no_fast": 7.152557373046875e-07,
+    "max_logit_delta_no_core": 7.152557373046875e-07,
+    "pulse_future_suffix_delta": 0.0,
+    "transformer_future_suffix_delta": 0.0
+  },
+  "4096": {
+    "logical_bytes": 32448,
+    "backing_bytes": 16785600,
+    "empty_bank": true,
+    "max_logit_delta_no_fast": 9.5367431640625e-07,
+    "max_logit_delta_no_core": 9.5367431640625e-07,
+    "pulse_future_suffix_delta": 0.0,
+    "transformer_future_suffix_delta": 0.0
+  },
+  "8192": {
+    "logical_bytes": 32448,
+    "backing_bytes": 33562816,
+    "empty_bank": true,
+    "max_logit_delta_no_fast": 4.76837158203125e-07,
+    "max_logit_delta_no_core": 4.76837158203125e-07,
+    "pulse_future_suffix_delta": 0.0,
+    "transformer_future_suffix_delta": 0.0
+  }
+}

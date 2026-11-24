@@ -1,0 +1,46 @@
+{
+  "target_accounting": "passed",
+  "cpu_resume_max_state_difference": {
+    "pulse": 0.0,
+    "transformer": 0.0
+  },
+  "micro_training_ablation": [
+    {
+      "seed": 41,
+      "steps": 16,
+      "max_backbone_weight_delta": 0.0,
+      "core_updates_full": 16,
+      "core_updates_off": 0,
+      "rls_fact_count_full": 0,
+      "full_nll": 5.563432216644287,
+      "no_core_nll": 5.563432216644287,
+      "full_ppl": 260.7161367096408,
+      "no_core_ppl": 260.7161367096408
+    },
+    {
+      "seed": 42,
+      "steps": 16,
+      "max_backbone_weight_delta": 0.0,
+      "core_updates_full": 16,
+      "core_updates_off": 0,
+      "rls_fact_count_full": 0,
+      "full_nll": 5.562740325927734,
+      "no_core_nll": 5.562740325927734,
+      "full_ppl": 260.5358120246773,
+      "no_core_ppl": 260.5358120246773
+    },
+    {
+      "seed": 43,
+      "steps": 16,
+      "max_backbone_weight_delta": 0.0,
+      "core_updates_full": 16,
+      "core_updates_off": 0,
+      "rls_fact_count_full": 0,
+      "full_nll": 5.5622711181640625,
+      "no_core_nll": 5.5622711181640625,
+      "full_ppl": 260.4135952737272,
+      "no_core_ppl": 260.4135952737272
+    }
+  ],
+  "gpu_runtime_test": "pending"
+}

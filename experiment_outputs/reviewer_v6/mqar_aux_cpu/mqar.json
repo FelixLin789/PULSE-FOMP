@@ -1,0 +1,872 @@
+{
+  "steps": 2931,
+  "history": [
+    {
+      "step": 100,
+      "accuracy": {
+        "pulse": 0.015625,
+        "transformer": 0.005208333333333333
+      }
+    },
+    {
+      "step": 200,
+      "accuracy": {
+        "pulse": 0.010416666666666666,
+        "transformer": 0.005208333333333333
+      }
+    },
+    {
+      "step": 300,
+      "accuracy": {
+        "pulse": 0.015625,
+        "transformer": 0.005208333333333333
+      }
+    },
+    {
+      "step": 400,
+      "accuracy": {
+        "pulse": 0.0625,
+        "transformer": 0.020833333333333332
+      }
+    },
+    {
+      "step": 500,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.03125
+      }
+    },
+    {
+      "step": 600,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.020833333333333332
+      }
+    },
+    {
+      "step": 700,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.020833333333333332
+      }
+    },
+    {
+      "step": 800,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.03125
+      }
+    },
+    {
+      "step": 900,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.020833333333333332
+      }
+    },
+    {
+      "step": 1000,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.036458333333333336
+      }
+    },
+    {
+      "step": 1100,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.041666666666666664
+      }
+    },
+    {
+      "step": 1200,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.041666666666666664
+      }
+    },
+    {
+      "step": 1300,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.026041666666666668
+      }
+    },
+    {
+      "step": 1400,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.03125
+      }
+    },
+    {
+      "step": 1500,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.026041666666666668
+      }
+    },
+    {
+      "step": 1600,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.03125
+      }
+    },
+    {
+      "step": 1700,
+      "accuracy": {
+        "pulse": 0.9947916666666666,
+        "transformer": 0.03125
+      }
+    },
+    {
+      "step": 1800,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.020833333333333332
+      }
+    },
+    {
+      "step": 1900,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.046875
+      }
+    },
+    {
+      "step": 2000,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.03125
+      }
+    },
+    {
+      "step": 2100,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.03125
+      }
+    },
+    {
+      "step": 2200,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.041666666666666664
+      }
+    },
+    {
+      "step": 2300,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.0625
+      }
+    },
+    {
+      "step": 2400,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.026041666666666668
+      }
+    },
+    {
+      "step": 2500,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.041666666666666664
+      }
+    },
+    {
+      "step": 2600,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.026041666666666668
+      }
+    },
+    {
+      "step": 2700,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.041666666666666664
+      }
+    },
+    {
+      "step": 2800,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.057291666666666664
+      }
+    },
+    {
+      "step": 2900,
+      "accuracy": {
+        "pulse": 1.0,
+        "transformer": 0.06770833333333333
+      }
+    }
+  ],
+  "seed": 42,
+  "short_context_passed": false,
+  "layout": "MQAR variant with explicit write and query markers and randomly located records",
+  "training_auxiliary": "For both models, recover the observed key and value at the value position.",
+  "threshold": "Both models >90% on independent length-256 development data",
+  "seconds": 429.3749762000007,
+  "batch": 8,
+  "test": {
+    "256/8": {
+      "models": {
+        "pulse": {
+          "hits": 192,
+          "queries": 192,
+          "accuracy": 1.0,
+          "perfect_episodes": 24,
+          "episode_ci95": [
+            1.0,
+            1.0
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 192,
+              "queries": 192
+            }
+          }
+        },
+        "transformer": {
+          "hits": 9,
+          "queries": 192,
+          "accuracy": 0.046875,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.026041666666666668,
+            0.06770833333333333
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 9,
+              "queries": 192
+            }
+          }
+        }
+      },
+      "paired_gap": 0.953125,
+      "paired_ci95": [
+        0.9322916666666666,
+        0.9739583333333334
+      ]
+    },
+    "256/32": {
+      "models": {
+        "pulse": {
+          "hits": 768,
+          "queries": 768,
+          "accuracy": 1.0,
+          "perfect_episodes": 24,
+          "episode_ci95": [
+            1.0,
+            1.0
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 768,
+              "queries": 768
+            }
+          }
+        },
+        "transformer": {
+          "hits": 18,
+          "queries": 768,
+          "accuracy": 0.0234375,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.016927083333333332,
+            0.029947916666666668
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 18,
+              "queries": 768
+            }
+          }
+        }
+      },
+      "paired_gap": 0.9765625,
+      "paired_ci95": [
+        0.9700520833333334,
+        0.9830729166666666
+      ]
+    },
+    "1024/8": {
+      "models": {
+        "pulse": {
+          "hits": 100,
+          "queries": 192,
+          "accuracy": 0.5208333333333334,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.4529947916666667,
+            0.5833333333333334
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 36,
+              "queries": 36
+            },
+            "256-511": {
+              "hits": 64,
+              "queries": 67
+            },
+            "512-1023": {
+              "hits": 0,
+              "queries": 89
+            }
+          }
+        },
+        "transformer": {
+          "hits": 5,
+          "queries": 192,
+          "accuracy": 0.026041666666666668,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.010416666666666666,
+            0.046875
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 1,
+              "queries": 36
+            },
+            "256-511": {
+              "hits": 2,
+              "queries": 67
+            },
+            "512-1023": {
+              "hits": 2,
+              "queries": 89
+            }
+          }
+        }
+      },
+      "paired_gap": 0.4947916666666667,
+      "paired_ci95": [
+        0.421875,
+        0.5572916666666666
+      ]
+    },
+    "1024/32": {
+      "models": {
+        "pulse": {
+          "hits": 349,
+          "queries": 768,
+          "accuracy": 0.4544270833333333,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.4270833333333333,
+            0.48046875
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 119,
+              "queries": 119
+            },
+            "256-511": {
+              "hits": 229,
+              "queries": 260
+            },
+            "512-1023": {
+              "hits": 1,
+              "queries": 389
+            }
+          }
+        },
+        "transformer": {
+          "hits": 13,
+          "queries": 768,
+          "accuracy": 0.016927083333333332,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.010416666666666666,
+            0.024739583333333332
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 1,
+              "queries": 119
+            },
+            "256-511": {
+              "hits": 5,
+              "queries": 260
+            },
+            "512-1023": {
+              "hits": 7,
+              "queries": 389
+            }
+          }
+        }
+      },
+      "paired_gap": 0.4375,
+      "paired_ci95": [
+        0.4049479166666667,
+        0.4674479166666667
+      ]
+    },
+    "1024/64": {
+      "models": {
+        "pulse": {
+          "hits": 676,
+          "queries": 1536,
+          "accuracy": 0.4401041666666667,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.421875,
+            0.4576822916666667
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 259,
+              "queries": 260
+            },
+            "256-511": {
+              "hits": 414,
+              "queries": 530
+            },
+            "512-1023": {
+              "hits": 3,
+              "queries": 746
+            }
+          }
+        },
+        "transformer": {
+          "hits": 13,
+          "queries": 1536,
+          "accuracy": 0.008463541666666666,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.005208333333333333,
+            0.01171875
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 1,
+              "queries": 260
+            },
+            "256-511": {
+              "hits": 5,
+              "queries": 530
+            },
+            "512-1023": {
+              "hits": 7,
+              "queries": 746
+            }
+          }
+        }
+      },
+      "paired_gap": 0.431640625,
+      "paired_ci95": [
+        0.4134114583333333,
+        0.44858398437499997
+      ]
+    },
+    "4096/8": {
+      "models": {
+        "pulse": {
+          "hits": 2,
+          "queries": 192,
+          "accuracy": 0.010416666666666666,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.0,
+            0.026041666666666668
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 1,
+              "queries": 1
+            },
+            "256-511": {
+              "hits": 1,
+              "queries": 1
+            },
+            "512-1023": {
+              "hits": 0,
+              "queries": 27
+            },
+            "1024-4095": {
+              "hits": 0,
+              "queries": 163
+            }
+          }
+        },
+        "transformer": {
+          "hits": 1,
+          "queries": 192,
+          "accuracy": 0.005208333333333333,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.0,
+            0.015625
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 0,
+              "queries": 1
+            },
+            "256-511": {
+              "hits": 0,
+              "queries": 1
+            },
+            "512-1023": {
+              "hits": 0,
+              "queries": 27
+            },
+            "1024-4095": {
+              "hits": 1,
+              "queries": 163
+            }
+          }
+        }
+      },
+      "paired_gap": 0.005208333333333333,
+      "paired_ci95": [
+        -0.010416666666666666,
+        0.020833333333333332
+      ]
+    },
+    "4096/32": {
+      "models": {
+        "pulse": {
+          "hits": 43,
+          "queries": 768,
+          "accuracy": 0.055989583333333336,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.03515625,
+            0.07682291666666667
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 10,
+              "queries": 10
+            },
+            "256-511": {
+              "hits": 31,
+              "queries": 34
+            },
+            "512-1023": {
+              "hits": 0,
+              "queries": 94
+            },
+            "1024-4095": {
+              "hits": 2,
+              "queries": 630
+            }
+          }
+        },
+        "transformer": {
+          "hits": 10,
+          "queries": 768,
+          "accuracy": 0.013020833333333334,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.0078125,
+            0.018229166666666668
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 0,
+              "queries": 10
+            },
+            "256-511": {
+              "hits": 0,
+              "queries": 34
+            },
+            "512-1023": {
+              "hits": 0,
+              "queries": 94
+            },
+            "1024-4095": {
+              "hits": 10,
+              "queries": 630
+            }
+          }
+        }
+      },
+      "paired_gap": 0.04296875,
+      "paired_ci95": [
+        0.022135416666666668,
+        0.06380208333333333
+      ]
+    },
+    "4096/64": {
+      "models": {
+        "pulse": {
+          "hits": 69,
+          "queries": 1536,
+          "accuracy": 0.044921875,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.033854166666666664,
+            0.055989583333333336
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 15,
+              "queries": 15
+            },
+            "256-511": {
+              "hits": 47,
+              "queries": 48
+            },
+            "512-1023": {
+              "hits": 0,
+              "queries": 171
+            },
+            "1024-4095": {
+              "hits": 7,
+              "queries": 1302
+            }
+          }
+        },
+        "transformer": {
+          "hits": 17,
+          "queries": 1536,
+          "accuracy": 0.011067708333333334,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.0078125,
+            0.013671875
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 0,
+              "queries": 15
+            },
+            "256-511": {
+              "hits": 1,
+              "queries": 48
+            },
+            "512-1023": {
+              "hits": 2,
+              "queries": 171
+            },
+            "1024-4095": {
+              "hits": 14,
+              "queries": 1302
+            }
+          }
+        }
+      },
+      "paired_gap": 0.033854166666666664,
+      "paired_ci95": [
+        0.022786458333333332,
+        0.045572916666666664
+      ]
+    },
+    "8192/8": {
+      "models": {
+        "pulse": {
+          "hits": 1,
+          "queries": 192,
+          "accuracy": 0.005208333333333333,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.0,
+            0.015625
+          ],
+          "by_distance": {
+            "512-1023": {
+              "hits": 0,
+              "queries": 6
+            },
+            "1024-4095": {
+              "hits": 0,
+              "queries": 82
+            },
+            "4096-8191": {
+              "hits": 1,
+              "queries": 104
+            }
+          }
+        },
+        "transformer": {
+          "hits": 0,
+          "queries": 192,
+          "accuracy": 0.0,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.0,
+            0.0
+          ],
+          "by_distance": {
+            "512-1023": {
+              "hits": 0,
+              "queries": 6
+            },
+            "1024-4095": {
+              "hits": 0,
+              "queries": 82
+            },
+            "4096-8191": {
+              "hits": 0,
+              "queries": 104
+            }
+          }
+        }
+      },
+      "paired_gap": 0.005208333333333333,
+      "paired_ci95": [
+        0.0,
+        0.015625
+      ]
+    },
+    "8192/32": {
+      "models": {
+        "pulse": {
+          "hits": 8,
+          "queries": 768,
+          "accuracy": 0.010416666666666666,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.0026041666666666665,
+            0.01953125
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 1,
+              "queries": 1
+            },
+            "256-511": {
+              "hits": 4,
+              "queries": 4
+            },
+            "512-1023": {
+              "hits": 0,
+              "queries": 23
+            },
+            "1024-4095": {
+              "hits": 2,
+              "queries": 358
+            },
+            "4096-8191": {
+              "hits": 1,
+              "queries": 382
+            }
+          }
+        },
+        "transformer": {
+          "hits": 8,
+          "queries": 768,
+          "accuracy": 0.010416666666666666,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.005208333333333333,
+            0.015625
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 0,
+              "queries": 1
+            },
+            "256-511": {
+              "hits": 0,
+              "queries": 4
+            },
+            "512-1023": {
+              "hits": 0,
+              "queries": 23
+            },
+            "1024-4095": {
+              "hits": 4,
+              "queries": 358
+            },
+            "4096-8191": {
+              "hits": 4,
+              "queries": 382
+            }
+          }
+        }
+      },
+      "paired_gap": 0.0,
+      "paired_ci95": [
+        -0.010416666666666666,
+        0.010416666666666666
+      ]
+    },
+    "8192/64": {
+      "models": {
+        "pulse": {
+          "hits": 21,
+          "queries": 1536,
+          "accuracy": 0.013671875,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.0078125,
+            0.020182291666666668
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 5,
+              "queries": 5
+            },
+            "256-511": {
+              "hits": 7,
+              "queries": 10
+            },
+            "512-1023": {
+              "hits": 1,
+              "queries": 49
+            },
+            "1024-4095": {
+              "hits": 6,
+              "queries": 695
+            },
+            "4096-8191": {
+              "hits": 2,
+              "queries": 777
+            }
+          }
+        },
+        "transformer": {
+          "hits": 20,
+          "queries": 1536,
+          "accuracy": 0.013020833333333334,
+          "perfect_episodes": 0,
+          "episode_ci95": [
+            0.010416666666666666,
+            0.014973958333333334
+          ],
+          "by_distance": {
+            "0-255": {
+              "hits": 0,
+              "queries": 5
+            },
+            "256-511": {
+              "hits": 0,
+              "queries": 10
+            },
+            "512-1023": {
+              "hits": 1,
+              "queries": 49
+            },
+            "1024-4095": {
+              "hits": 4,
+              "queries": 695
+            },
+            "4096-8191": {
+              "hits": 15,
+              "queries": 777
+            }
+          }
+        }
+      },
+      "paired_gap": 0.0006510416666666666,
+      "paired_ci95": [
+        -0.005208333333333333,
+        0.006510416666666667
+      ]
+    }
+  },
+  "model_parameters": {
+    "pulse": 182542,
+    "transformer": 182976
+  }
+}

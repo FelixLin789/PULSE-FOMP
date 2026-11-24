@@ -1,0 +1,193 @@
+{
+  "pulse_rls": {
+    "pre": {
+      "old_top1": 0.0,
+      "new_top1": 0.0,
+      "hits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "target_nll": 5.5606818199157715,
+      "base_ppl": 259.999925136413
+    },
+    "after_wave_1": {
+      "old_top1": 1.0,
+      "new_top1": 0.0,
+      "hits": [
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "target_nll": 2.782160997390747,
+      "base_ppl": 259.999925136413
+    },
+    "after_wave_2": {
+      "old_top1": 1.0,
+      "new_top1": 1.0,
+      "hits": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "target_nll": 0.021307503804564476,
+      "base_ppl": 259.999925136413
+    },
+    "remove_fast_after_teaching": {
+      "old_top1": 0.0,
+      "new_top1": 0.0,
+      "hits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "target_nll": 5.5606818199157715,
+      "base_ppl": 259.999925136413
+    },
+    "remove_core_after_teaching": {
+      "old_top1": 0.0,
+      "new_top1": 0.0,
+      "hits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "target_nll": 5.5606818199157715,
+      "base_ppl": 259.999925136413
+    },
+    "sleep_public_lm": {
+      "old_top1": 1.0,
+      "new_top1": 1.0,
+      "hits": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "target_nll": 0.024266520515084267,
+      "base_ppl": 259.999925136413
+    },
+    "sleep_gate_disabled": {
+      "old_top1": 0.0,
+      "new_top1": 0.0,
+      "hits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "target_nll": 5.5606818199157715,
+      "base_ppl": 259.999925136413
+    },
+    "fast_norm_after_sleep": 0.0
+  },
+  "pulse_lora_replay": {
+    "pre": {
+      "old_top1": 0.0,
+      "new_top1": 0.0,
+      "hits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "target_nll": 5.5606818199157715,
+      "base_ppl": 259.999925136413
+    },
+    "adapter_parameters": 4864,
+    "after_wave_1": {
+      "old_top1": 1.0,
+      "new_top1": 0.0,
+      "hits": [
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "target_nll": 5.5344929695129395,
+      "base_ppl": 259.82344092238685
+    },
+    "after_wave_2": {
+      "old_top1": 1.0,
+      "new_top1": 0.0,
+      "hits": [
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      "target_nll": 5.495845317840576,
+      "base_ppl": 259.6745636391979
+    }
+  },
+  "transformer_lora_replay": {
+    "pre": {
+      "old_top1": 0.0,
+      "new_top1": 0.0,
+      "hits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "target_nll": 5.570089817047119,
+      "base_ppl": 259.94426514120454
+    },
+    "adapter_parameters": 2816,
+    "after_wave_1": {
+      "old_top1": 0.0,
+      "new_top1": 0.0,
+      "hits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "target_nll": 5.56043004989624,
+      "base_ppl": 259.9676929518766
+    },
+    "after_wave_2": {
+      "old_top1": 0.0,
+      "new_top1": 0.0,
+      "hits": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "target_nll": 5.546586990356445,
+      "base_ppl": 259.96446995320144
+    }
+  }
+}

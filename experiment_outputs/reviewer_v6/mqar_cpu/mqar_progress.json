@@ -1,0 +1,145 @@
+{
+  "history": [
+    {
+      "step": 100,
+      "accuracy": {
+        "pulse": 0.010416666666666666,
+        "transformer": 0.015625
+      }
+    },
+    {
+      "step": 200,
+      "accuracy": {
+        "pulse": 0.015625,
+        "transformer": 0.015625
+      }
+    },
+    {
+      "step": 300,
+      "accuracy": {
+        "pulse": 0.010416666666666666,
+        "transformer": 0.010416666666666666
+      }
+    },
+    {
+      "step": 400,
+      "accuracy": {
+        "pulse": 0.026041666666666668,
+        "transformer": 0.015625
+      }
+    },
+    {
+      "step": 500,
+      "accuracy": {
+        "pulse": 0.010416666666666666,
+        "transformer": 0.010416666666666666
+      }
+    },
+    {
+      "step": 600,
+      "accuracy": {
+        "pulse": 0.020833333333333332,
+        "transformer": 0.015625
+      }
+    },
+    {
+      "step": 700,
+      "accuracy": {
+        "pulse": 0.005208333333333333,
+        "transformer": 0.005208333333333333
+      }
+    },
+    {
+      "step": 800,
+      "accuracy": {
+        "pulse": 0.020833333333333332,
+        "transformer": 0.010416666666666666
+      }
+    },
+    {
+      "step": 900,
+      "accuracy": {
+        "pulse": 0.026041666666666668,
+        "transformer": 0.010416666666666666
+      }
+    },
+    {
+      "step": 1000,
+      "accuracy": {
+        "pulse": 0.03125,
+        "transformer": 0.026041666666666668
+      }
+    },
+    {
+      "step": 1100,
+      "accuracy": {
+        "pulse": 0.020833333333333332,
+        "transformer": 0.020833333333333332
+      }
+    },
+    {
+      "step": 1200,
+      "accuracy": {
+        "pulse": 0.026041666666666668,
+        "transformer": 0.005208333333333333
+      }
+    },
+    {
+      "step": 1300,
+      "accuracy": {
+        "pulse": 0.020833333333333332,
+        "transformer": 0.026041666666666668
+      }
+    },
+    {
+      "step": 1400,
+      "accuracy": {
+        "pulse": 0.015625,
+        "transformer": 0.015625
+      }
+    },
+    {
+      "step": 1500,
+      "accuracy": {
+        "pulse": 0.03125,
+        "transformer": 0.015625
+      }
+    },
+    {
+      "step": 1600,
+      "accuracy": {
+        "pulse": 0.026041666666666668,
+        "transformer": 0.03125
+      }
+    },
+    {
+      "step": 1700,
+      "accuracy": {
+        "pulse": 0.026041666666666668,
+        "transformer": 0.010416666666666666
+      }
+    },
+    {
+      "step": 1800,
+      "accuracy": {
+        "pulse": 0.026041666666666668,
+        "transformer": 0.020833333333333332
+      }
+    },
+    {
+      "step": 1900,
+      "accuracy": {
+        "pulse": 0.036458333333333336,
+        "transformer": 0.046875
+      }
+    },
+    {
+      "step": 2000,
+      "accuracy": {
+        "pulse": 0.057291666666666664,
+        "transformer": 0.07291666666666667
+      }
+    }
+  ],
+  "short_context_passed": false
+}

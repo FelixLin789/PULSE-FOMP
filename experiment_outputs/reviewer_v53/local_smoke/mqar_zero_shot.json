@@ -1,0 +1,526 @@
+{
+  "64/4": {
+    "models": {
+      "pulse": {
+        "hits": 0,
+        "queries": 16,
+        "accuracy": 0.0,
+        "episode_ci95": [
+          0.0,
+          0.0
+        ],
+        "all_queries_correct": 0.0,
+        "hits_by_query": [
+          [
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false
+          ]
+        ]
+      },
+      "transformer": {
+        "hits": 0,
+        "queries": 16,
+        "accuracy": 0.0,
+        "episode_ci95": [
+          0.0,
+          0.0
+        ],
+        "all_queries_correct": 0.0,
+        "hits_by_query": [
+          [
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false
+          ]
+        ]
+      }
+    },
+    "gap_tokens": [
+      [
+        16,
+        31,
+        6,
+        27
+      ],
+      [
+        29,
+        25,
+        48,
+        31
+      ],
+      [
+        34,
+        23,
+        44,
+        29
+      ],
+      [
+        28,
+        46,
+        31,
+        24
+      ]
+    ],
+    "paired_delta": 0.0,
+    "paired_ci95": [
+      0.0,
+      0.0
+    ]
+  },
+  "64/8": {
+    "models": {
+      "pulse": {
+        "hits": 0,
+        "queries": 32,
+        "accuracy": 0.0,
+        "episode_ci95": [
+          0.0,
+          0.0
+        ],
+        "all_queries_correct": 0.0,
+        "hits_by_query": [
+          [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        ]
+      },
+      "transformer": {
+        "hits": 0,
+        "queries": 32,
+        "accuracy": 0.0,
+        "episode_ci95": [
+          0.0,
+          0.0
+        ],
+        "all_queries_correct": 0.0,
+        "hits_by_query": [
+          [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        ]
+      }
+    },
+    "gap_tokens": [
+      [
+        44,
+        43,
+        15,
+        23,
+        16,
+        16,
+        15,
+        61
+      ],
+      [
+        18,
+        28,
+        46,
+        11,
+        44,
+        30,
+        47,
+        48
+      ],
+      [
+        26,
+        32,
+        40,
+        39,
+        31,
+        48,
+        51,
+        32
+      ],
+      [
+        42,
+        11,
+        34,
+        27,
+        32,
+        24,
+        21,
+        14
+      ]
+    ],
+    "paired_delta": 0.0,
+    "paired_ci95": [
+      0.0,
+      0.0
+    ]
+  },
+  "128/4": {
+    "models": {
+      "pulse": {
+        "hits": 0,
+        "queries": 16,
+        "accuracy": 0.0,
+        "episode_ci95": [
+          0.0,
+          0.0
+        ],
+        "all_queries_correct": 0.0,
+        "hits_by_query": [
+          [
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false
+          ]
+        ]
+      },
+      "transformer": {
+        "hits": 0,
+        "queries": 16,
+        "accuracy": 0.0,
+        "episode_ci95": [
+          0.0,
+          0.0
+        ],
+        "all_queries_correct": 0.0,
+        "hits_by_query": [
+          [
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false
+          ]
+        ]
+      }
+    },
+    "gap_tokens": [
+      [
+        17,
+        22,
+        97,
+        35
+      ],
+      [
+        21,
+        94,
+        85,
+        88
+      ],
+      [
+        29,
+        35,
+        114,
+        122
+      ],
+      [
+        36,
+        27,
+        28,
+        73
+      ]
+    ],
+    "paired_delta": 0.0,
+    "paired_ci95": [
+      0.0,
+      0.0
+    ]
+  },
+  "128/8": {
+    "models": {
+      "pulse": {
+        "hits": 0,
+        "queries": 32,
+        "accuracy": 0.0,
+        "episode_ci95": [
+          0.0,
+          0.0
+        ],
+        "all_queries_correct": 0.0,
+        "hits_by_query": [
+          [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        ]
+      },
+      "transformer": {
+        "hits": 0,
+        "queries": 32,
+        "accuracy": 0.0,
+        "episode_ci95": [
+          0.0,
+          0.0
+        ],
+        "all_queries_correct": 0.0,
+        "hits_by_query": [
+          [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        ]
+      }
+    },
+    "gap_tokens": [
+      [
+        70,
+        73,
+        36,
+        92,
+        39,
+        89,
+        89,
+        104
+      ],
+      [
+        82,
+        74,
+        81,
+        106,
+        57,
+        99,
+        114,
+        119
+      ],
+      [
+        96,
+        76,
+        20,
+        93,
+        58,
+        55,
+        117,
+        112
+      ],
+      [
+        34,
+        11,
+        82,
+        61,
+        95,
+        105,
+        92,
+        73
+      ]
+    ],
+    "paired_delta": 0.0,
+    "paired_ci95": [
+      0.0,
+      0.0
+    ]
+  }
+}

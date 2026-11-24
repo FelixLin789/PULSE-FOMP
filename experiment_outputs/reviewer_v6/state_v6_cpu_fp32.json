@@ -1,0 +1,43 @@
+{
+  "device": "cpu",
+  "dtype": "float32",
+  "compile": false,
+  "random_initialization": true,
+  "batch": 1,
+  "models": {
+    "v53": {
+      "512": {
+        "logical_bytes": 4690944,
+        "backing_bytes": 4690944,
+        "continuation_backing_bytes": 4690944
+      },
+      "4096": {
+        "logical_bytes": 4690944,
+        "backing_bytes": 4690944,
+        "continuation_backing_bytes": 4690944
+      },
+      "8192": {
+        "logical_bytes": 4690944,
+        "backing_bytes": 4690944,
+        "continuation_backing_bytes": 4690944
+      }
+    },
+    "v6": {
+      "512": {
+        "logical_bytes": 4690168,
+        "backing_bytes": 4690168,
+        "continuation_backing_bytes": 4690168
+      },
+      "4096": {
+        "logical_bytes": 4690168,
+        "backing_bytes": 4690168,
+        "continuation_backing_bytes": 4690168
+      },
+      "8192": {
+        "logical_bytes": 4690168,
+        "backing_bytes": 4690168,
+        "continuation_backing_bytes": 4690168
+      }
+    }
+  }
+}
