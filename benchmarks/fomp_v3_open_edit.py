@@ -636,10 +636,11 @@ def _train_fomp_v3(
             qa_p = (n_cf_tr + rng.choice(n_qa_tr, size=3, replace=False)).tolist()
             mq_p = (n_cf_tr + n_qa_tr + rng.choice(n_mq_tr, size=2, replace=False)).tolist()
             chosen = [cf_p[0], qa_p[0], cf_p[1], cf_p[2], qa_p[1], qa_p[2], mq_p[0], mq_p[1]]
-        elif not smoke and n_cf_tr >= 6 and n_qa_tr >= 2:
-            cf_p = rng.choice(n_cf_tr, size=bs - 2, replace=False).tolist()
-            qa_p = (n_cf_tr + rng.choice(n_qa_tr, size=2, replace=False)).tolist()
-            chosen = [cf_p[0], qa_p[0], *cf_p[1:], qa_p[1]]
+        elif not smoke and n_cf_tr >= 5 and n_qa_tr >= 3:
+            # 0% MQuAKE mode: keep identical 3/8 QA ratio (1 dir + 2 para QA, 1 dir + 4 para Cloze)
+            cf_p = rng.choice(n_cf_tr, size=bs - 3, replace=False).tolist()
+            qa_p = (n_cf_tr + rng.choice(n_qa_tr, size=3, replace=False)).tolist()
+            chosen = [cf_p[0], qa_p[0], *cf_p[1:], qa_p[1], qa_p[2]]
         else:
             chosen = rng.choice(n_tr, size=bs, replace=False).tolist()
         bank_idx = np.zeros((bs, m_ep), dtype=np.int64)
