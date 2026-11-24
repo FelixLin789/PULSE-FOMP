@@ -134,9 +134,13 @@ def _load_zsre_test(
     ds = None
     for repo in ("CrowdMind/ZsRE", "gjyotin305/full_zsre"):
         try:
-            ds_dict = load_dataset(repo)
-            sp = "test" if "test" in ds_dict else ("validation" if "validation" in ds_dict else list(ds_dict.keys())[0])
-            ds = ds_dict[sp]
+            # Fetch only the 7.7MB test split when available to avoid downloading unused 66MB train.jsonl
+            try:
+                ds, sp = load_dataset(repo, split="test"), "test"
+            except Exception:
+                ds_dict = load_dataset(repo)
+                sp = "test" if "test" in ds_dict else ("validation" if "validation" in ds_dict else list(ds_dict.keys())[0])
+                ds = ds_dict[sp]
             print(f"[S2 ZsRE] Loaded {repo} split={sp} ({len(ds)} rows)", flush=True)
             break
         except Exception as exc:
