@@ -154,6 +154,51 @@ def test_fomp_v41_strict_multihop_switch_and_incremental_vkv_decode() -> None:
     assert ex_vkv > 0 and gen_vkv == ref_gen
 
 
+def test_fomp_v42_hop2_logit_lens_implicit_retrieval_and_surface_mask() -> None:
+    """Verify Route 3 (`hop2_logit_lens`) detects unmentioned latent subjects, blocks surface-present ones, and reuses lock."""
+    device = torch.device("cpu")
+    backbone = _tiny_llama(n_layers=8, d=64)
+    v4_cfg = FOMPv4Config.for_backbone(64, 8)
+    fomp = FOMPv4Module(v4_cfg).eval()
+    # Non-zero direct injection gain so forced Hop-2 injection measurably shifts logits vs base!
+    for up in fomp.direct.val_ups:
+        torch.nn.init.normal_(up.weight, 0.0, 0.05)
+    fomp.direct.emb_scale.data.fill_(1.0)
+    wrap = FOMPv4BackboneWrapper(backbone, fomp, freeze_backbone=True)
+    tok = _SmokeTokenizer()
+
+    # Episode 0 has cue `[1, 14, 15, 16, 17]`; multi-hop query `[1, 90..97]` shares ZERO non-BOS tokens with Episode 0!
+    cue = [1, 14, 15, 16, 17]
+    tgt = [61, 62]
+    comp = wrap.compile_episodes([cue], [tgt], pad_id=0, device=device, bos_id=1, tokenizer=tok, g_ext=1.0)
+    # Force multi-hop gate ON (`mh_prob = 0.95 > 0.80`) and span gate strictly OFF (`span_rel_tau = 0.99 -> g_span = 0.0`)
+    fomp.mh_fc2.bias.data.fill_(3.0)
+    fomp.span_rel_tau.data.fill_(0.99)
+    fomp.hop2_ll_tau_buf.fill_(-10.0)
+    fomp.hop2_rel_tau_buf.fill_(-1.0)
+
+    q_implicit = [1, 90, 91, 92, 93, 94, 95, 96]
+    q_imp_t = torch.tensor([q_implicit])
+    with torch.no_grad():
+        base_lg = backbone(q_imp_t).logits
+        res_h2 = wrap.forward_logits(q_imp_t, compiled=comp, mode="legible")
+        res_h2_flip = wrap.forward_logits(q_imp_t, compiled=comp, mode="legible", sign_flip=True)
+    assert res_h2["mode_used"] == "hop2_logit_lens" and res_h2["hop2_ep"] == 0 and res_h2["extra_kv_tokens"] == 0
+    assert (res_h2["logits"] - base_lg).abs().max().item() > 1e-4
+    assert (res_h2["logits"] - res_h2_flip["logits"]).abs().max().item() > 1e-4
+
+    # Multi-token greedy decode reuses `forced_hop2_ep == 0` with `0` extra KV tokens!
+    gen_h2, ex_h2 = wrap.greedy_generate(q_implicit, max_new_tokens=3, device=device, compiled=comp, mode="legible")
+    assert len(gen_h2) == 3 and ex_h2 == 0 and wrap._last_routing["mode"] == "hop2_logit_lens"
+
+    # Surface-mask check: if ALL salient candidate tokens of Episode 0 already appear in the prompt, Route 3 MUST block!
+    cand_tids = [int(x) for x, m in zip(comp["latent_subj_tids"][0].tolist(), comp["latent_subj_mask"][0].tolist()) if m > 0]
+    q_surface = [1, 90, 91] + cand_tids + [95, 96]
+    with torch.no_grad():
+        res_surf = wrap.forward_logits(torch.tensor([q_surface]), compiled=comp, mode="legible")
+    assert res_surf["mode_used"] == "hop2_miss_clean" and res_surf["extra_kv_tokens"] == 0
+
+
 def test_ike_4shot_formatter_and_hop_subtype_split() -> None:
     assert strip_qa_wrapper("Question: What university did Watts Humphrey attend?\nAnswer:") == "What university did Watts Humphrey attend"
     assert strip_cue_copula("The original broadcaster of The Westerner is") == "The original broadcaster of The Westerner"
@@ -188,15 +233,17 @@ def test_ike_4shot_formatter_and_hop_subtype_split() -> None:
     assert sub["per_arm"]["a"]["hop2_edited_em"]["pct"] == 0.0
 
 
-def test_stage31_smoke_cli_end_to_end(tmp_path: Path) -> None:
+def test_stage32_smoke_cli_end_to_end(tmp_path: Path) -> None:
     cmd = [
         sys.executable,
         str(ROOT / "benchmarks/fomp_v4_multihop_stage3.py"),
         "--smoke",
         "--out",
-        str(tmp_path / "s31_smoke"),
+        str(tmp_path / "s32_smoke"),
     ]
     proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
     assert proc.returncode == 0, f"Smoke failed:\nSTDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}"
-    assert (tmp_path / "s31_smoke/stage31_multihop_summary.json").exists()
-    assert (tmp_path / "s31_smoke/stage31_multihop_report.md").exists()
+    assert (tmp_path / "s32_smoke/stage32_multihop_summary.json").exists()
+    assert (tmp_path / "s32_smoke/stage32_multihop_report.md").exists()
+    rep = (tmp_path / "s32_smoke/stage32_multihop_report.md").read_text(encoding="utf-8")
+    assert "FOMP-v4.2 Pure-Activation 3-Route" in rep
