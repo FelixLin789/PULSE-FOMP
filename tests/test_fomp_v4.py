@@ -234,16 +234,23 @@ def test_ike_4shot_formatter_and_hop_subtype_split() -> None:
 
 
 def test_stage32_smoke_cli_end_to_end(tmp_path: Path) -> None:
+    import json
+
+    assert FOMPv4Config.for_backbone(4096, 32).latent_probe_layers == (16, 18, 20, 22, 24, 26, 28)
     cmd = [
         sys.executable,
         str(ROOT / "benchmarks/fomp_v4_multihop_stage3.py"),
         "--smoke",
         "--out",
-        str(tmp_path / "s32_smoke"),
+        str(tmp_path / "s32b_smoke"),
     ]
     proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
     assert proc.returncode == 0, f"Smoke failed:\nSTDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}"
-    assert (tmp_path / "s32_smoke/stage32_multihop_summary.json").exists()
-    assert (tmp_path / "s32_smoke/stage32_multihop_report.md").exists()
-    rep = (tmp_path / "s32_smoke/stage32_multihop_report.md").read_text(encoding="utf-8")
-    assert "FOMP-v4.2 Pure-Activation 3-Route" in rep
+    sum_p = tmp_path / "s32b_smoke/stage32b_multihop_summary.json"
+    rep_p = tmp_path / "s32b_smoke/stage32b_multihop_report.md"
+    assert sum_p.exists() and rep_p.exists()
+    s_obj = json.loads(sum_p.read_text(encoding="utf-8"))
+    assert s_obj["seed"] == 41
+    assert "cf_route_counts" in s_obj["arms"]["fomp_v42_legible"]
+    assert "zsre_route_counts" in s_obj["arms"]["fomp_v42_legible"]
+    assert "FOMP-v4.2 Pure-Activation 3-Route" in rep_p.read_text(encoding="utf-8")

@@ -7,13 +7,13 @@ Unifies three strictly disjoint pure-activation execution routes inside a single
   2. **Route 2 — `Hop-1 Edited` Compositional Bridge (`mh_prob > mh_gate_tau` AND `g_span > span_gate_min`)**:
      Read-Equivalent convex mid-layer entity replacement across `bridge_inject_layers` (`L10, 13, 16, 19`),
      allowing upper layers (`L20..31`) to resolve the outer Hop-2 predicate natively (`0` extra tokens!).
-  3. **Route 3 — `Hop-2 Edited` Logit-Lens Implicit Secondary Retrieval (`mh_prob > mh_gate_tau` AND `g_span <= span_gate_min`)**:
-     Once the frozen backbone's middle-to-late layers (`latent_probe_layers`, e.g. `L16, 19, 22, 25`) latently
-     resolve the unmentioned Hop-1 bridge entity at its mid-sentence token position, projects those hidden states
-     through a lightweight residual Tuned Lens + the backbone's own frozen `final_norm + lm_head` (full 128K
-     open-vocabulary space, ZERO unseen-entity projection bottleneck!), cross-locks against the prompt's outer
-     relation (`max(q_rel_tail, q_hop2_outer) . k_fam[m]`), and injects the matched Hop-2 edit `m*` across all
-     5 `v3.6` layers `(16, 19, 23, 27, 31)` at `\nAnswer:` (`0` extra tokens!).
+  3. **Route 3 — `Hop-2 Edited` Zero-Param Raw Logit-Lens Implicit Secondary Retrieval (`mh_prob > mh_gate_tau` AND `g_span <= span_gate_min`)**:
+     Once the frozen backbone's middle-to-late layers (`latent_probe_layers`, e.g. `L16, 18, 20, 22, 24, 26, 28`)
+     latently resolve the unmentioned Hop-1 bridge entity mid-sentence, projects those hidden states directly through
+     the backbone's own frozen `final_norm + lm_head` (full 128K open-vocabulary space, ZERO extra lens parameters
+     and ZERO next-token KL erasure!), cross-locks against the prompt's outer relation
+     (`max(q_rel_tail, q_hop2_outer) . k_fam[m]`), and injects the matched Hop-2 edit `m*` across all 5 `v3.6` layers
+     `(16, 19, 23, 27, 31)` at `\nAnswer:` (`0` extra tokens!).
 """
 from __future__ import annotations
 
@@ -68,12 +68,11 @@ class FOMPv4Config:
     bridge_inject_layers: Tuple[int, ...] = (10, 13, 16, 19)
     read_layer: int = 16
     inject_layers: Tuple[int, ...] = (16, 19, 23, 27, 31)
-    latent_probe_layers: Tuple[int, ...] = (16, 19, 22, 25)
+    latent_probe_layers: Tuple[int, ...] = (16, 18, 20, 22, 24, 26, 28)
     key_dim: int = 512
     ent_dim: int = 384
     val_dim: int = 512
     bridge_rank: int = 256
-    lens_rank: int = 64
     mh_hidden: int = 256
     max_tgt_tokens: int = 8
     max_latent_subj_cands: int = 6
@@ -102,12 +101,10 @@ class FOMPv4Config:
             min(n_layers - 2, rl),
             min(n_layers - 2, rl + step_b),
         ])))
-        probes = tuple(sorted(set([
-            rl,
-            min(n_layers - 1, rl + step_b),
-            min(n_layers - 1, rl + 2 * step_b),
-            min(n_layers - 1, rl + 3 * step_b),
-        ])))
+        step_p = max(1, int(round(n_layers * 0.0625)))
+        probes = tuple(sorted(set(
+            min(n_layers - 2, rl + k * step_p) for k in range(7) if rl + k * step_p <= n_layers - 2
+        ))) or (rl,)
         return cls(
             d_model=d_model,
             bridge_read_layer=brl,
@@ -119,7 +116,6 @@ class FOMPv4Config:
             ent_dim=(384 if d_model >= 3072 else 256),
             val_dim=512,
             bridge_rank=(256 if d_model >= 3072 else 128),
-            lens_rank=(64 if d_model >= 3072 else 32),
             mh_hidden=(256 if d_model >= 3072 else 128),
         )
 
@@ -205,19 +201,14 @@ class FOMPv4Module(nn.Module):
         self.mh_fc1 = nn.Linear(5 * config.d_model, config.mh_hidden, bias=True)
         self.mh_fc2 = nn.Linear(config.mh_hidden, 1, bias=True)
 
-        # --- Route 3 (`Hop-2`): Low-Rank Residual Tuned-Lens Adapters + Outer-Relation Projector ---
-        # Zero-init `lens_ups` => exact raw Logit Lens at step 0; self-supervised alignment to L31 on `cf_train`!
-        self.lens_norms = nn.ModuleList([_FastRMSNorm(config.d_model) for _ in range(self.n_probes)])
-        self.lens_downs = nn.ModuleList([nn.Linear(config.d_model, config.lens_rank, bias=False) for _ in range(self.n_probes)])
-        self.lens_ups = nn.ModuleList([nn.Linear(config.lens_rank, config.d_model, bias=False) for _ in range(self.n_probes)])
-
+        # --- Route 3 (`Hop-2`): Pure Frozen Raw Logit-Lens (0 extra lens params) + Outer-Relation Projector ---
         # Outer-relation projector ONLY invoked inside Route 3 (`mh_prob > 0.80 & g_span <= 0.20`), NEVER on single-hop!
         self.hop2_out_norm = _FastRMSNorm(config.d_model)
         self.hop2_out_score = nn.Linear(config.d_model, 1, bias=True)
         self.hop2_out_proj = nn.Linear(3 * config.d_model, config.key_dim, bias=False)
         self.hop2_out_mlp = nn.Linear(config.key_dim, config.key_dim, bias=True)
 
-        # Calibrated Logit-Lens log-prob & outer-relation thresholds (registered as buffers so checkpoints persist them!)
+        # Calibrated Raw Logit-Lens log-prob & outer-relation thresholds (registered as buffers so checkpoints persist them!)
         self.register_buffer("hop2_ll_tau_buf", torch.tensor(float(config.hop2_ll_tau), dtype=torch.float32))
         self.register_buffer("hop2_rel_tau_buf", torch.tensor(float(config.hop2_rel_tau), dtype=torch.float32))
 
@@ -226,7 +217,6 @@ class FOMPv4Module(nn.Module):
             self.span_ent_score, self.span_ent_proj, self.span_ent_mlp,
             self.bridge_down, *self.bridge_ups,
             self.mh_tok_score, self.mh_fc1, self.mh_fc2,
-            *self.lens_downs, *self.lens_ups,
             self.hop2_out_score, self.hop2_out_proj, self.hop2_out_mlp,
         ]:
             _mark_no_muon(m)
@@ -235,13 +225,11 @@ class FOMPv4Module(nn.Module):
         self._init_bridge_weights()
 
     def _init_bridge_weights(self) -> None:
-        for lin in (self.span_rel_proj, self.span_ent_proj, self.bridge_down, self.hop2_out_proj, *self.lens_downs):
+        for lin in (self.span_rel_proj, self.span_ent_proj, self.bridge_down, self.hop2_out_proj):
             nn.init.normal_(lin.weight, 0.0, 0.02)
-        for mlp in (self.span_rel_mlp, self.span_ent_mlp):
+        for mlp in (self.span_rel_mlp, self.span_ent_mlp, self.hop2_out_mlp):
             nn.init.normal_(mlp.weight, 0.0, 0.01)
             nn.init.zeros_(mlp.bias)
-        nn.init.zeros_(self.hop2_out_mlp.weight)
-        nn.init.zeros_(self.hop2_out_mlp.bias)
         for sc in (self.span_rel_score, self.span_ent_score, self.mh_tok_score, self.hop2_out_score):
             nn.init.normal_(sc.weight, 0.0, 0.02)
             nn.init.zeros_(sc.bias)
@@ -249,7 +237,7 @@ class FOMPv4Module(nn.Module):
         nn.init.zeros_(self.mh_fc1.bias)
         nn.init.zeros_(self.mh_fc2.weight)
         nn.init.constant_(self.mh_fc2.bias, -3.0)
-        for up in (*self.bridge_ups, *self.lens_ups):
+        for up in self.bridge_ups:
             nn.init.zeros_(up.weight)
 
     def bridge_parameters(self) -> List[nn.Parameter]:
@@ -319,17 +307,10 @@ class FOMPv4Module(nn.Module):
         ze = ze + self.span_ent_mlp(F.silu(ze))
         return F.normalize(zr.float(), p=2, dim=-1, eps=1e-6), F.normalize(ze.float(), p=2, dim=-1, eps=1e-6)
 
-    def apply_tuned_lens(self, h: torch.Tensor, probe_idx: int) -> torch.Tensor:
-        """Zero-init low-rank residual Tuned-Lens translator aligning mid-layer `h` to final `lm_head` space."""
-        w_dt = self.lens_downs[probe_idx].weight.dtype
-        hn = self.lens_norms[probe_idx](h.to(w_dt))
-        delta = self.lens_ups[probe_idx](F.silu(self.lens_downs[probe_idx](hn)))
-        return (h.float() + delta.float()).to(h.dtype)
-
     def project_hop2_outer_rel(
         self, h_read_seq: torch.Tensor, seq_mask: Optional[torch.Tensor] = None, prompt_len: Optional[int] = None,
     ) -> torch.Tensor:
-        """Extract outer question relation in `direct.k_fam` space (invoked ONLY inside Route 3 Hop-2!)."""
+        """Directly extract outer question relation in `direct.k_fam` space (no `q_tail` inner-relation conflict!)."""
         if prompt_len is not None and prompt_len < h_read_seq.shape[1]:
             h_read_seq = h_read_seq[:, :prompt_len, :]
             if seq_mask is not None:
@@ -355,14 +336,13 @@ class FOMPv4Module(nn.Module):
         last_idx = (lens - 1).clamp_min(0)
         ar = torch.arange(bsz, device=hn.device)
         u_last = hn[ar, last_idx]
-        h_ctx = _causal_window_mean(h_read_seq, self.direct.config.key_ctx_window)
-        q_tail = self.direct.project_key(h_read_seq[ar, last_idx], h_ctx[ar, last_idx])
 
         feat = torch.cat([u_pool, u_pref, u_last], dim=-1)
         if self.training:
             feat = F.dropout(feat, p=0.10, training=True)
-        delta_out = self.hop2_out_mlp(F.silu(self.hop2_out_proj(feat))).float()
-        return F.normalize(q_tail.float() + delta_out, p=2, dim=-1, eps=1e-6)
+        z_o = self.hop2_out_proj(feat)
+        z_o = z_o + self.hop2_out_mlp(F.silu(z_o))
+        return F.normalize(z_o.float(), p=2, dim=-1, eps=1e-6)
 
     def compute_multihop_logits(
         self, h_read_seq: torch.Tensor, seq_mask: Optional[torch.Tensor] = None, prompt_len: Optional[int] = None,
@@ -720,44 +700,6 @@ class FOMPv4BackboneWrapper(nn.Module):
         return captured
 
     @torch.no_grad()
-    def capture_probes_and_final(
-        self,
-        input_ids: torch.Tensor,
-        probe_layers: Sequence[int],
-        attention_mask: Optional[torch.Tensor] = None,
-    ) -> Tuple[Dict[int, torch.Tensor], torch.Tensor]:
-        """Single frozen-backbone pass capturing all `probe_layers` inputs PLUS final pre-norm layer output."""
-        captured: Dict[int, torch.Tensor] = {}
-        final_box: List[torch.Tensor] = []
-        handles = []
-        for li in sorted(set(probe_layers)):
-            def _mk(idx_l: int):
-                def _pre(_mod: nn.Module, args: Tuple[Any, ...], kwargs: Dict[str, Any]) -> None:
-                    h = kwargs["hidden_states"] if len(args) == 0 else args[0]
-                    captured[idx_l] = h.detach()
-                return _pre
-            handles.append(self.layers[li].register_forward_pre_hook(_mk(li), with_kwargs=True))
-
-        def _post(_mod: nn.Module, _args: Tuple[Any, ...], output: Any) -> None:
-            h_out = output[0] if isinstance(output, tuple) else output
-            final_box.append(h_out.detach())
-
-        handles.append(self.layers[-1].register_forward_hook(_post))
-        was_tr = self.backbone.training
-        self.backbone.eval()
-        try:
-            if attention_mask is not None and hasattr(self.backbone, "model"):
-                self.backbone(input_ids=input_ids, attention_mask=attention_mask, use_cache=False)
-            else:
-                self.backbone(input_ids)
-        finally:
-            for hd in handles:
-                hd.remove()
-            if was_tr:
-                self.backbone.train()
-        return captured, final_box[0]
-
-    @torch.no_grad()
     def lookup_target_embeddings(self, tgt_ids: torch.Tensor) -> torch.Tensor:
         w_out = _get_out_embedding_weight(self.backbone)
         return F.embedding(tgt_ids.to(w_out.device), w_out).detach()
@@ -973,20 +915,19 @@ class FOMPv4BackboneWrapper(nn.Module):
                 if int(tid_mat[m, s_i].item()) in q_tid_set or (w_s and w_s in q_word_set):
                     msk_mat[m, s_i] = 0.0
 
-        # Score candidate subject tokens across all mid-to-late probe layers & non-BOS prompt positions
+        # Score candidate subject tokens across all mid-to-late probe layers via zero-param frozen Raw Logit-Lens
         best_lp = torch.full((m_cnt, s_cnt), -100.0, device=tid_mat.device, dtype=torch.float32)
         flat_tids = tid_mat.reshape(-1)
         has_bos = compiled.get("bos_id") is not None
-        for pi, l_idx in enumerate(cfg.latent_probe_layers):
+        for l_idx in cfg.latent_probe_layers:
             h_p = h_probes.get(l_idx)
             if h_p is None or h_p.shape[1] == 0:
                 continue
             start_t = 1 if (has_bos and h_p.shape[1] > 1) else 0
-            h_hat = self.fomp.apply_tuned_lens(h_p[:, start_t:, :], pi)    # [1, L', d]
-            lg_v = _project_logit_lens(self.backbone, h_hat).float()       # [1, L', V]
-            lp_v = F.log_softmax(lg_v, dim=-1)[0]                          # [L', V]
-            gathered = lp_v[:, flat_tids].reshape(-1, m_cnt, s_cnt)        # [L', M, S]
-            layer_max = gathered.max(dim=0).values                         # [M, S]
+            lg_v = _project_logit_lens(self.backbone, h_p[:, start_t:, :]).float()  # [1, L', V]
+            lp_v = F.log_softmax(lg_v, dim=-1)[0]                                   # [L', V]
+            gathered = lp_v[:, flat_tids].reshape(-1, m_cnt, s_cnt)                 # [L', M, S]
+            layer_max = gathered.max(dim=0).values                                  # [M, S]
             best_lp = torch.maximum(best_lp, layer_max)
 
         best_lp = best_lp.masked_fill(msk_mat <= 0.0, -100.0)

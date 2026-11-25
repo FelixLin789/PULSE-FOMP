@@ -784,10 +784,9 @@ def _train_fomp_v4_zero_mq(
     n_tr = max(8, int(n_pool * 0.90)) if not smoke else n_pool
     val_idx = np.arange(n_tr, n_pool) if n_tr < n_pool else np.arange(0, min(8, n_pool))
 
-    phase1_params = [p for n, p in wrap_v4.fomp.named_parameters() if not n.startswith(("direct.", "lens_"))]
-    lens_params = [p for n, p in wrap_v4.fomp.named_parameters() if n.startswith("lens_")]
+    train_params = wrap_v4.fomp.bridge_parameters()
     lr = 1.0e-3 if not smoke else 2.0e-3
-    opt = torch.optim.AdamW(phase1_params, lr=lr, weight_decay=1e-4)
+    opt = torch.optim.AdamW(train_params, lr=lr, weight_decay=1e-4)
     steps = 8 if smoke else bridge_steps
     ema_start = max(2, int(steps * 0.65))
     ema_decay = 0.985
@@ -937,7 +936,7 @@ def _train_fomp_v4_zero_mq(
             loss = loss_e2e + 0.8 * loss_nce_a + 3.0 * loss_marg_a + 1.5 * loss_tau_a + 1.2 * loss_mh + 0.8 * loss_hop2_rel
 
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(phase1_params, 1.0)
+        torch.nn.utils.clip_grad_norm_(train_params, 1.0)
         opt.step()
 
         if st >= ema_start:
@@ -965,41 +964,7 @@ def _train_fomp_v4_zero_mq(
     if ema_state is not None:
         wrap_v4.fomp.load_state_dict({k: v.to(dtype=wrap_v4.fomp.state_dict()[k].dtype, device=device) for k, v in ema_state.items()})
 
-    # --- Phase 2: Self-Supervised Residual Tuned-Lens Alignment (`sh_cue + prose` Belrose KL + known latent entity) ---
-    print(f"[FOMP-v4.2 Phase 2] Training low-rank residual Tuned-Lens on cf_train+prose (0% MQuAKE)...", flush=True)
-    n_probes = wrap_v4.fomp.n_probes
-    gen_seqs = list(sh_cue_ids[: min(n_tr, 12 if smoke else 224)]) + [
-        c.tolist()[:48] for c in prose_tr_chunks[: min(len(prose_tr_chunks), 4 if smoke else 32)]
-    ]
-    hp_toks: List[List[torch.Tensor]] = [[] for _ in range(n_probes)]
-    hf_toks: List[torch.Tensor] = []
-    for s0 in range(0, len(gen_seqs), bs_enc):
-        sub_s = gen_seqs[s0 : s0 + bs_enc]
-        mx = max(len(x) for x in sub_s)
-        mat = torch.full((len(sub_s), mx), pad_id, device=device, dtype=torch.long)
-        msk = torch.zeros((len(sub_s), mx), device=device, dtype=torch.long)
-        for j, x in enumerate(sub_s):
-            mat[j, : len(x)] = torch.tensor(x, device=device, dtype=torch.long)
-            msk[j, : len(x)] = 1
-        with torch.autocast(device.type, dtype=torch.bfloat16, enabled=amp):
-            caps_p, h_fin = wrap_v4.capture_probes_and_final(mat, cfg.latent_probe_layers, attention_mask=msk)
-        for j, x in enumerate(sub_s):
-            ln = len(x)
-            st_pos = 1 if (bos_id is not None and ln > 1) else 0
-            avail = list(range(st_pos, ln))
-            if len(avail) > 8:
-                picked = sorted(set(rng.choice(avail[:-1], size=7, replace=False).tolist() + [avail[-1]]))
-            else:
-                picked = avail
-            pt = torch.tensor(picked, device=device, dtype=torch.long)
-            for pi, li in enumerate(cfg.latent_probe_layers):
-                hp_toks[pi].append(caps_p[li][j, pt].cpu())
-            hf_toks.append(h_fin[j, pt].cpu())
-
-    lens_hp_all = [torch.cat(hp_toks[pi], dim=0) for pi in range(n_probes)]  # each [N_tok, d]
-    lens_hf_all = torch.cat(hf_toks, dim=0)                                  # [N_tok, d]
-    n_lens_tok = lens_hf_all.shape[0]
-
+    # --- Phase 2: Held-Out `val_known` Zero-Param Raw Logit-Lens 64-Edit-Bank Calibration (`0%` MQuAKE!) ---
     def _first_ent_tok_variants(ent_str: str) -> Tuple[List[int], str]:
         w0 = ent_str.strip().split()[0] if ent_str.strip() else ""
         w_clean = w0.strip(" .,?!:;\"'()[]\n\t").lower()
@@ -1012,13 +977,12 @@ def _train_fomp_v4_zero_mq(
                 tids.append(int(enc[0]))
         return tids, w_clean
 
-    # Identify rows where frozen backbone natively knows `target_true` over `target_new` (strictly `cf_train`!)
-    cand_indices = list(range(0, min(n_tr, 16 if smoke else 512))) + [int(x) for x in val_idx.tolist()]
-    cand_indices = sorted(set(cand_indices))
+    # Identify held-out `val_idx` rows natively known by frozen backbone (`target_true` not in `comp_q_ids`)
+    val_list = [int(x) for x in val_idx.tolist()]
     known_flags: Dict[int, bool] = {}
     ent_var_map: Dict[int, Tuple[List[int], str]] = {}
-    for s0 in range(0, len(cand_indices), bs_enc):
-        sub_idx = cand_indices[s0 : s0 + bs_enc]
+    for s0 in range(0, len(val_list), bs_enc):
+        sub_idx = val_list[s0 : s0 + bs_enc]
         sub_c = [sh_cue_ids[i] for i in sub_idx]
         mx = max(len(x) for x in sub_c)
         mat = torch.full((len(sub_c), mx), pad_id, device=device, dtype=torch.long)
@@ -1036,97 +1000,17 @@ def _train_fomp_v4_zero_mq(
             t_tr_ids, w_tr = _first_ent_tok_variants(sub_cf[idx_i].target_true)
             t_nw_ids, _ = _first_ent_tok_variants(sub_cf[idx_i].target_new)
             ent_var_map[idx_i] = (t_tr_ids, w_tr)
-            if not t_tr_ids or not t_nw_ids:
-                known_flags[idx_i] = False
-                continue
-            # Ensure ground-truth latent entity token does NOT literally appear in `pos_q_ids[idx_i]` or `comp_q_ids[idx_i]`
-            q_used = set(pos_q_ids[idx_i]) | set(comp_q_ids[idx_i])
-            if any(tid in q_used for tid in t_tr_ids):
+            if not t_tr_ids or not t_nw_ids or any(tid in set(comp_q_ids[idx_i]) for tid in t_tr_ids):
                 known_flags[idx_i] = False
                 continue
             known_flags[idx_i] = bool(float(lp_k[j, t_tr_ids[0]].item()) > float(lp_k[j, t_nw_ids[0]].item()))
 
-    tr_known = [i for i in cand_indices if i < n_tr and known_flags.get(i, False)]
-    val_known = [int(i) for i in val_idx.tolist() if known_flags.get(int(i), False)]
-    if smoke and len(tr_known) < 4:
-        tr_known = [i for i in range(min(8, n_tr)) if ent_var_map.get(i, ([], ""))[0]]
+    val_known = [i for i in val_list if known_flags.get(i, False)]
     if smoke and len(val_known) < 4:
-        val_known = [int(i) for i in val_idx.tolist()[:8] if ent_var_map.get(int(i), ([], ""))[0]]
+        val_known = [i for i in val_list[:8] if ent_var_map.get(i, ([], ""))[0]]
 
-    # Cache 2 inner-NP boundary states per `tr_known` row on `pos_q_ids` for mild task-aligned Tuned-Lens boost
-    lat_hp: Optional[List[torch.Tensor]] = None
-    lat_tids: Optional[torch.Tensor] = None
-    if len(tr_known) >= 4:
-        lh_parts: List[List[torch.Tensor]] = [[] for _ in range(n_probes)]
-        lt_list: List[int] = []
-        for s0 in range(0, len(tr_known), bs_enc):
-            sub_i = tr_known[s0 : s0 + bs_enc]
-            sub_s = [pos_q_ids[i] for i in sub_i]
-            mx = max(len(x) for x in sub_s)
-            mat = torch.full((len(sub_s), mx), pad_id, device=device, dtype=torch.long)
-            msk = torch.zeros((len(sub_s), mx), device=device, dtype=torch.long)
-            for j, x in enumerate(sub_s):
-                mat[j, : len(x)] = torch.tensor(x, device=device, dtype=torch.long)
-                msk[j, : len(x)] = 1
-            with torch.autocast(device.type, dtype=torch.bfloat16, enabled=amp):
-                caps_l = wrap_v4.encode_layers_batch(mat, cfg.latent_probe_layers, attention_mask=msk)
-            for j, idx_i in enumerate(sub_i):
-                ln = len(pos_q_ids[idx_i])
-                p0_j = min(ln - 1, max(0, pos_sp_end[idx_i]))
-                p1_j = min(ln - 1, p0_j + 1)
-                p_idx = torch.tensor([p0_j, p1_j], device=device, dtype=torch.long)
-                for pi, li in enumerate(cfg.latent_probe_layers):
-                    lh_parts[pi].append(caps_l[li][j, p_idx].unsqueeze(0).cpu())
-                lt_list.append(ent_var_map[idx_i][0][0])
-        lat_hp = [torch.cat(lh_parts[pi], dim=0) for pi in range(n_probes)]  # each [N_tr_k, 2, d]
-        lat_tids = torch.tensor(lt_list, dtype=torch.long)
-
-    opt_lens = torch.optim.AdamW(lens_params, lr=1.0e-3, weight_decay=1e-2)
-    lens_steps = 6 if smoke else 160
-    bs_l = min(16 if smoke else 64, n_lens_tok)
-    last_lens_kl = 0.0
-    last_lens_ent = 0.0
-    for lst in range(1, lens_steps + 1):
-        wrap_v4.fomp.train()
-        opt_lens.zero_grad(set_to_none=True)
-        pick_l = rng.choice(n_lens_tok, size=bs_l, replace=False)
-        hf_b = lens_hf_all[pick_l].to(device)
-        with torch.no_grad(), torch.autocast(device.type, dtype=torch.bfloat16, enabled=amp):
-            p_ref = F.softmax(_project_logit_lens(wrap_v4.backbone, hf_b).float(), dim=-1)
-        with torch.autocast(device.type, dtype=torch.bfloat16, enabled=amp):
-            kl_acc = torch.tensor(0.0, device=device)
-            for pi in range(n_probes):
-                hp_b = lens_hp_all[pi][pick_l].to(device)
-                h_hat = wrap_v4.fomp.apply_tuned_lens(hp_b, pi)
-                lp_p = F.log_softmax(_project_logit_lens(wrap_v4.backbone, h_hat).float(), dim=-1)
-                kl_acc = kl_acc + F.kl_div(lp_p, p_ref, reduction="batchmean")
-            loss_kl_l = kl_acc / float(n_probes)
-
-            loss_lat_e = torch.tensor(0.0, device=device)
-            if lat_hp is not None and lat_tids is not None:
-                bs_e = min(8 if smoke else 32, len(tr_known))
-                pe_idx = rng.choice(len(tr_known), size=bs_e, replace=False)
-                t_b = lat_tids[pe_idx].to(device)  # [bs_e]
-                lp_cands = []
-                for pi in range(n_probes):
-                    h_e = lat_hp[pi][pe_idx].to(device)  # [bs_e, 2, d]
-                    h_hat_e = wrap_v4.fomp.apply_tuned_lens(h_e, pi)
-                    lp_e = F.log_softmax(_project_logit_lens(wrap_v4.backbone, h_hat_e).float(), dim=-1)
-                    lp_t = lp_e.gather(-1, t_b.view(bs_e, 1, 1).expand(bs_e, 2, 1)).squeeze(-1)  # [bs_e, 2]
-                    lp_cands.append(lp_t)
-                lp_stack = torch.cat(lp_cands, dim=-1)  # [bs_e, n_probes*2]
-                soft_best = torch.logsumexp(lp_stack * 2.0, dim=-1) / 2.0
-                loss_lat_e = (-soft_best).mean()
-            loss_l_tot = loss_kl_l + 0.15 * loss_lat_e
-        loss_l_tot.backward()
-        torch.nn.utils.clip_grad_norm_(lens_params, 1.0)
-        opt_lens.step()
-        last_lens_kl = float(loss_kl_l.item())
-        last_lens_ent = float(loss_lat_e.item())
-
-    # --- Phase 3: Held-Out `val_known` 64-Edit-Bank Calibration (Monotonic Raw vs Tuned Lens + `(tau_ll, tau_rel)`) ---
     wrap_v4.fomp.eval()
-    hop2_calib_meta: Dict[str, Any] = {"val_known": len(val_known), "lens_kept": "raw_fallback"}
+    hop2_calib_meta: Dict[str, Any] = {"val_known": len(val_known), "probe_layers": list(cfg.latent_probe_layers)}
     if len(val_known) >= 4:
         val_seqs = [comp_q_ids[i] for i in val_known]
         val_probes_list: List[Dict[int, torch.Tensor]] = []
@@ -1149,7 +1033,7 @@ def _train_fomp_v4_zero_mq(
                 val_hread_list.append(caps_v[cfg.read_layer][j : j + 1, :ln, :].cpu())
 
         v_cnt = len(val_known)
-        k_val_bank = torch.stack([k_fam_tr[int(outer_j_arr[i])] for i in val_known], dim=0).to(device)  # [V, key_dim]
+        k_val_bank = torch.stack([k_fam_tr[int(outer_j_arr[i])] for i in val_known], dim=0).to(device)
         rel_mat = np.zeros((v_cnt, v_cnt), dtype=np.float32)
         with torch.no_grad():
             for vi in range(v_cnt):
@@ -1173,17 +1057,15 @@ def _train_fomp_v4_zero_mq(
         same_ent = np.array([[v_words[i] == v_words[j] for j in range(v_cnt)] for i in range(v_cnt)], dtype=bool)
         bank_k = min(64, v_cnt)
 
-        @torch.no_grad()
-        def _score_lens_and_calibrate() -> Dict[str, Any]:
-            ll_mat = np.full((v_cnt, v_cnt), -100.0, dtype=np.float32)
+        ll_mat = np.full((v_cnt, v_cnt), -100.0, dtype=np.float32)
+        with torch.no_grad():
             for vi in range(v_cnt):
                 best_lp = torch.full((v_cnt, max_c), -100.0, device=device, dtype=torch.float32)
-                for pi, li in enumerate(cfg.latent_probe_layers):
+                for li in cfg.latent_probe_layers:
                     hp = val_probes_list[vi][li].to(device)
                     st_t = 1 if (bos_id is not None and hp.shape[1] > 1) else 0
                     with torch.autocast(device.type, dtype=torch.bfloat16, enabled=amp):
-                        h_hat = wrap_v4.fomp.apply_tuned_lens(hp[:, st_t:, :], pi)
-                        lg_v = _project_logit_lens(wrap_v4.backbone, h_hat).float()
+                        lg_v = _project_logit_lens(wrap_v4.backbone, hp[:, st_t:, :]).float()
                     lp_v = F.log_softmax(lg_v, dim=-1)[0]
                     gathered = lp_v[:, flat_vtids].reshape(-1, v_cnt, max_c).max(dim=0).values
                     best_lp = torch.maximum(best_lp, gathered)
@@ -1195,76 +1077,57 @@ def _train_fomp_v4_zero_mq(
                             msk_q[vj, si] = 0.0
                 ll_mat[vi] = best_lp.masked_fill(msk_q <= 0.0, -100.0).max(dim=-1).values.cpu().numpy()
 
-            best_obj = -1e9
-            best_res = {
-                "tp_top1_pct": 0.0, "clean_fp_pct": 0.0,
-                "ll_tau": float(cfg.hop2_ll_tau), "rel_tau": float(cfg.hop2_rel_tau),
-                "pos_ll_med": round(float(np.median(np.diag(ll_mat))), 3),
-                "pos_rel_med": round(float(np.median(np.diag(rel_mat))), 3),
-            }
-            for t_ll in np.linspace(-6.0, -1.2, 25):
-                for t_rl in (0.15, 0.22, 0.28, 0.35, 0.42, 0.50):
-                    tp_hits = 0
-                    fp_hits = 0
-                    for vi in range(v_cnt):
-                        dist_js = [j for j in range(v_cnt) if not same_ent[vi, j]][: max(1, bank_k - 1)]
-                        d_pass = [j for j in dist_js if ll_mat[vi, j] >= t_ll and rel_mat[vi, j] >= t_rl]
-                        if d_pass:
-                            fp_hits += 1
-                        if ll_mat[vi, vi] >= t_ll and rel_mat[vi, vi] >= t_rl:
-                            my_sc = ll_mat[vi, vi] + 4.0 * rel_mat[vi, vi]
-                            if not d_pass or my_sc > max(ll_mat[vi, j] + 4.0 * rel_mat[vi, j] for j in d_pass):
-                                tp_hits += 1
-                    tp_r = tp_hits / float(v_cnt)
-                    fp_r = fp_hits / float(v_cnt)
-                    if fp_r <= 0.05 or smoke:
-                        obj = tp_r - 2.0 * fp_r
-                        if obj > best_obj:
-                            best_obj = obj
-                            best_res = {
-                                "tp_top1_pct": round(100.0 * tp_r, 2),
-                                "clean_fp_pct": round(100.0 * fp_r, 2),
-                                "ll_tau": round(float(t_ll), 3),
-                                "rel_tau": round(float(t_rl), 3),
-                                "pos_ll_med": round(float(np.median(np.diag(ll_mat))), 3),
-                                "pos_rel_med": round(float(np.median(np.diag(rel_mat))), 3),
-                            }
-            return best_res
-
-        tuned_res = _score_lens_and_calibrate()
-        saved_ups = [u.weight.detach().clone() for u in wrap_v4.fomp.lens_ups]
-        for u in wrap_v4.fomp.lens_ups:
-            u.weight.data.zero_()
-        raw_res = _score_lens_and_calibrate()
-        if (tuned_res["tp_top1_pct"] - 2.0 * tuned_res["clean_fp_pct"]) >= (raw_res["tp_top1_pct"] - 2.0 * raw_res["clean_fp_pct"]):
-            for u, w_s in zip(wrap_v4.fomp.lens_ups, saved_ups):
-                u.weight.data.copy_(w_s)
-            win_res = tuned_res
-            kept_kind = "tuned_lens"
-        else:
-            win_res = raw_res
-            kept_kind = "raw_logit_lens"
+        best_obj = -1e9
+        best_res = {
+            "tp_top1_pct": 0.0, "clean_fp_pct": 0.0,
+            "ll_tau": float(cfg.hop2_ll_tau), "rel_tau": float(cfg.hop2_rel_tau),
+            "pos_ll_med": round(float(np.median(np.diag(ll_mat))), 3),
+            "pos_rel_med": round(float(np.median(np.diag(rel_mat))), 3),
+        }
+        for t_ll in np.linspace(-6.5, -1.5, 26):
+            for t_rl in (0.15, 0.22, 0.28, 0.35, 0.42, 0.50, 0.58):
+                tp_hits = 0
+                fp_hits = 0
+                for vi in range(v_cnt):
+                    dist_js = [j for j in range(v_cnt) if not same_ent[vi, j]][: max(1, bank_k - 1)]
+                    d_pass = [j for j in dist_js if ll_mat[vi, j] >= t_ll and rel_mat[vi, j] >= t_rl]
+                    if d_pass:
+                        fp_hits += 1
+                    if ll_mat[vi, vi] >= t_ll and rel_mat[vi, vi] >= t_rl:
+                        my_sc = ll_mat[vi, vi] + 4.0 * rel_mat[vi, vi]
+                        if not d_pass or my_sc > max(ll_mat[vi, j] + 4.0 * rel_mat[vi, j] for j in d_pass):
+                            tp_hits += 1
+                tp_r = tp_hits / float(v_cnt)
+                fp_r = fp_hits / float(v_cnt)
+                if fp_r <= 0.05 or smoke:
+                    obj = tp_r - 2.0 * fp_r
+                    if obj > best_obj:
+                        best_obj = obj
+                        best_res = {
+                            "tp_top1_pct": round(100.0 * tp_r, 2),
+                            "clean_fp_pct": round(100.0 * fp_r, 2),
+                            "ll_tau": round(float(t_ll), 3),
+                            "rel_tau": round(float(t_rl), 3),
+                            "pos_ll_med": round(float(np.median(np.diag(ll_mat))), 3),
+                            "pos_rel_med": round(float(np.median(np.diag(rel_mat))), 3),
+                        }
 
         if not smoke:
-            wrap_v4.fomp.hop2_ll_tau_buf.fill_(win_res["ll_tau"])
-            wrap_v4.fomp.hop2_rel_tau_buf.fill_(win_res["rel_tau"])
+            wrap_v4.fomp.hop2_ll_tau_buf.fill_(best_res["ll_tau"])
+            wrap_v4.fomp.hop2_rel_tau_buf.fill_(best_res["rel_tau"])
         hop2_calib_meta = {
             "val_known": v_cnt,
             "bank_k": bank_k,
-            "lens_kept": kept_kind,
-            "tuned_lens": tuned_res,
-            "raw_logit_lens": raw_res,
+            "probe_layers": list(cfg.latent_probe_layers),
+            "raw_logit_lens": best_res,
             "selected_ll_tau": round(float(wrap_v4.fomp.hop2_ll_tau_buf.item()), 3),
             "selected_rel_tau": round(float(wrap_v4.fomp.hop2_rel_tau_buf.item()), 3),
-            "lens_kl_final": round(last_lens_kl, 4),
-            "lens_ent_final": round(last_lens_ent, 4),
         }
         print(
-            f"[FOMP-v4.2 Hop-2 Calib (val_known={v_cnt}, bank={bank_k})] kept={kept_kind} | "
-            f"raw_tp1={raw_res['tp_top1_pct']}% (fp={raw_res['clean_fp_pct']}%) | "
-            f"tuned_tp1={tuned_res['tp_top1_pct']}% (fp={tuned_res['clean_fp_pct']}%) | "
+            f"[FOMP-v4.2b Raw Logit-Lens Calib (val_known={v_cnt}, bank={bank_k}, probes={cfg.latent_probe_layers})] "
+            f"tp1={best_res['tp_top1_pct']}% (fp={best_res['clean_fp_pct']}%) | "
             f"tau=({hop2_calib_meta['selected_ll_tau']}, {hop2_calib_meta['selected_rel_tau']}) | "
-            f"pos_med=(ll={win_res['pos_ll_med']}, rel={win_res['pos_rel_med']})",
+            f"pos_med=(ll={best_res['pos_ll_med']}, rel={best_res['pos_rel_med']})",
             flush=True,
         )
 
@@ -1283,7 +1146,7 @@ def _train_fomp_v4_zero_mq(
         ])
         fp_1hop_pct = round(100.0 * float((p_sh_val > cfg.mh_gate_tau).float().mean().item()), 2)
         rec_2hop_pct = round(100.0 * float((p_mh_val > cfg.mh_gate_tau).float().mean().item()), 2)
-    print(f"[FOMP-v4.2 Val Check] 1-Hop False-Trigger Rate={fp_1hop_pct}% | 2-Hop Recall={rec_2hop_pct}% (tau={cfg.mh_gate_tau})", flush=True)
+    print(f"[FOMP-v4.2b Val Check] 1-Hop False-Trigger Rate={fp_1hop_pct}% | 2-Hop Recall={rec_2hop_pct}% (tau={cfg.mh_gate_tau})", flush=True)
 
     sync(device)
     sec = round(time.perf_counter() - t0, 2)
@@ -1291,7 +1154,6 @@ def _train_fomp_v4_zero_mq(
         "zero_mquake_train": True,
         "zero_zsre_train": True,
         "bridge_steps": steps,
-        "lens_steps": lens_steps,
         "train_sec": sec,
         "total_params": sum(p.numel() for p in wrap_v4.fomp.parameters()),
         "bridge_only_params": sum(p.numel() for p in wrap_v4.fomp.bridge_parameters()),
@@ -1355,6 +1217,7 @@ def _eval_v4_cf(
 ) -> Dict[str, Any]:
     wrap_v4.fomp.eval()
     extra_toks: List[int] = []
+    route_counts: Dict[str, int] = {}
 
     def _run(pairs: List[Tuple[str, str, str]], want_new: bool) -> Dict[str, List[int]]:
         prob_hits, em_hits = [], []
@@ -1363,6 +1226,8 @@ def _eval_v4_cf(
             tn_ids = tokenizer.encode(t_new, add_special_tokens=False)
             to_ids = tokenizer.encode(t_orig, add_special_tokens=False)
             lp_n, ex1 = wrap_v4.score_target_logprob(p_ids, tn_ids, device, amp, compiled=compiled, mode=mode)
+            rt_m = str(wrap_v4._last_routing.get("mode", "unknown"))
+            route_counts[rt_m] = route_counts.get(rt_m, 0) + 1
             lp_o, _ = wrap_v4.score_target_logprob(p_ids, to_ids, device, amp, compiled=compiled, mode=mode)
             prob_hits.append(int((lp_n > lp_o) if want_new else (lp_o > lp_n)))
 
@@ -1397,6 +1262,7 @@ def _eval_v4_cf(
         "nei_prob": nei["prob"], "nei_em": nei["em"],
         "ppl": ppl, "ms_per_query": ms_q,
         "avg_extra_prompt_tokens": round(float(np.mean(extra_toks)) if extra_toks else 0.0, 2),
+        "cf_route_counts": route_counts,
     }
 
 
@@ -1459,6 +1325,7 @@ def _eval_v4_zsre(
     r_prob, r_em, g_prob, g_em, loc_exact = [], [], [], [], []
     loc_tok_m = loc_tok_t = 0
     extra_toks: List[int] = []
+    route_counts: Dict[str, int] = {}
     for i, r in enumerate(z_batch):
         tn_ids = tokenizer.encode(r.target_new, add_special_tokens=False)
         to_ids = tokenizer.encode(r.target_true, add_special_tokens=False)
@@ -1466,6 +1333,8 @@ def _eval_v4_zsre(
 
         c_ids = _enc_prompt(tokenizer, r.cue, prepend_bos)
         lp_rn, ex_r1 = wrap_v4.score_target_logprob(c_ids, tn_ids, device, amp, compiled=compiled, mode=mode)
+        rt_r = str(wrap_v4._last_routing.get("mode", "unknown"))
+        route_counts[rt_r] = route_counts.get(rt_r, 0) + 1
         lp_ro, _ = wrap_v4.score_target_logprob(c_ids, to_ids, device, amp, compiled=compiled, mode=mode)
         r_prob.append(int(lp_rn > lp_ro))
         g_c, ex_r2 = wrap_v4.greedy_generate(c_ids, max(1, len(tn_ids) + 1), device, amp=amp, compiled=compiled, mode=mode)
@@ -1474,6 +1343,8 @@ def _eval_v4_zsre(
 
         p_ids = _enc_prompt(tokenizer, r.paraphrase, prepend_bos)
         lp_gn, ex_g1 = wrap_v4.score_target_logprob(p_ids, tn_ids, device, amp, compiled=compiled, mode=mode)
+        rt_g = str(wrap_v4._last_routing.get("mode", "unknown"))
+        route_counts[rt_g] = route_counts.get(rt_g, 0) + 1
         lp_go, _ = wrap_v4.score_target_logprob(p_ids, to_ids, device, amp, compiled=compiled, mode=mode)
         g_prob.append(int(lp_gn > lp_go))
         g_p, ex_g2 = wrap_v4.greedy_generate(p_ids, max(1, len(tn_ids) + 1), device, amp=amp, compiled=compiled, mode=mode)
@@ -1482,6 +1353,8 @@ def _eval_v4_zsre(
 
         l_ids = _enc_prompt(tokenizer, r.loc_prompt, prepend_bos)
         g_l, ex_l = wrap_v4.greedy_generate(l_ids, loc_gen_len, device, amp=amp, compiled=compiled, mode=mode)
+        rt_l = str(wrap_v4._last_routing.get("mode", "unknown"))
+        route_counts[rt_l] = route_counts.get(rt_l, 0) + 1
         extra_toks.append(ex_l)
         b_l = base_loc_preds[i]
         ml = min(len(g_l), len(b_l))
@@ -1493,6 +1366,7 @@ def _eval_v4_zsre(
         "loc_exact": loc_exact,
         "loc_tok_match_pct": round(100.0 * loc_tok_m / max(1, loc_tok_t), 2),
         "avg_extra_prompt_tokens": round(float(np.mean(extra_toks)) if extra_toks else 0.0, 2),
+        "zsre_route_counts": route_counts,
     }
 
 
@@ -1689,14 +1563,14 @@ def main() -> None:
     ap.add_argument("--m-zsre", type=int, default=100)
     ap.add_argument("--zsre-batches", type=int, default=2)
     ap.add_argument("--bridge-steps", type=int, default=900)
-    ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--seed", type=int, default=41)
     ap.add_argument("--deadline", type=float, default=9e18)
     ap.add_argument("--smoke", action="store_true")
     args = ap.parse_args()
 
     args.out.mkdir(parents=True, exist_ok=True)
-    out_json = args.out / "stage32_multihop_summary.json"
-    out_md = args.out / "stage32_multihop_report.md"
+    out_json = args.out / "stage32b_multihop_summary.json"
+    out_md = args.out / "stage32b_multihop_report.md"
 
     req_arms = [a.strip().lower() for a in args.arms.split(",") if a.strip()]
     force_arms = {a.strip().lower() for a in args.force_arms.split(",") if a.strip()}
@@ -1770,6 +1644,7 @@ def main() -> None:
         print(f"[Stage 3.2] Imported {len(summary.get('arms', {}))} completed arms from Stage 2.5!", flush=True)
 
     summary.update({
+        "seed": int(args.seed),
         "device": torch.cuda.get_device_name(0) if amp else "cpu",
         "backbone": "smoke_8L" if args.smoke else args.model_id,
         "m_cf": m_cf, "cf_batches": len(cf_batches), "n_cf_total": sum(len(b) for b in cf_batches),
@@ -1909,7 +1784,7 @@ def main() -> None:
         fomp_v4 = FOMPv4Module(v4_cfg).to(device)
         wrap_v4 = FOMPv4BackboneWrapper(backbone, fomp_v4, freeze_backbone=True)
 
-        v4_ckpt = args.out / "fomp_v42_zero_mq_llama3_8b.pt"
+        v4_ckpt = args.out / "fomp_v42b_zero_mq_llama3_8b.pt"
         if any(a in force_arms for a in need_v4) and v4_ckpt.exists():
             v4_ckpt.unlink()
         z_v3_ckpt = None
@@ -1928,14 +1803,19 @@ def main() -> None:
             if time.time() > args.deadline - 120:
                 break
             mode = "legible" if arm_name == "fomp_v42_legible" else "bridge_kv"
-            print(f"\n=== [Stage 3.2 Arm] {arm_name.upper()} (mode={mode}, 0% MQuAKE & 0% ZsRE!) ===", flush=True)
+            print(f"\n=== [Stage 3.2b Arm] {arm_name.upper()} (mode={mode}, seed={args.seed}, 0% MQuAKE & 0% ZsRE!) ===", flush=True)
 
             cf_bs, cf_ts, mq_bs, mq_ts, z_bs, z_ts = [], [], [], [], [], []
+            cf_route_tot: Dict[str, int] = {}
             mq_route_tot: Dict[str, int] = {}
+            zsre_route_tot: Dict[str, int] = {}
             for cb in cf_batches:
                 cm, ts = _compile_v4_batch(wrap_v4, tokenizer, cb, pad_id, prepend_bos, device)
                 cf_ts.append(ts)
-                cf_bs.append(_eval_v4_cf(wrap_v4, tokenizer, cb, prose_ev_chunks, cm, mode, device, amp, prepend_bos))
+                cf_res = _eval_v4_cf(wrap_v4, tokenizer, cb, prose_ev_chunks, cm, mode, device, amp, prepend_bos)
+                for rk, rv in cf_res.get("cf_route_counts", {}).items():
+                    cf_route_tot[rk] = cf_route_tot.get(rk, 0) + rv
+                cf_bs.append(cf_res)
             for mb in mq_batches:
                 cm, ts = _compile_v4_batch(wrap_v4, tokenizer, mb, pad_id, prepend_bos, device)
                 mq_ts.append(ts)
@@ -1946,13 +1826,18 @@ def main() -> None:
             for zb, bl in zip(z_batches, base_loc_batches):
                 cm, ts = _compile_v4_batch(wrap_v4, tokenizer, zb, pad_id, prepend_bos, device)
                 z_ts.append(ts)
-                z_bs.append(_eval_v4_zsre(wrap_v4, tokenizer, zb, bl, cm, mode, device, amp, prepend_bos, loc_gen_len))
+                z_res = _eval_v4_zsre(wrap_v4, tokenizer, zb, bl, cm, mode, device, amp, prepend_bos, loc_gen_len)
+                for rk, rv in z_res.get("zsre_route_counts", {}).items():
+                    zsre_route_tot[rk] = zsre_route_tot.get(rk, 0) + rv
+                z_bs.append(z_res)
 
             summary["arms"][arm_name] = {
                 "train_meta": v4_meta,
                 "mode": mode,
                 "zero_mquake_train": True,
+                "cf_route_counts": cf_route_tot,
                 "mq_route_counts": mq_route_tot,
+                "zsre_route_counts": zsre_route_tot,
                 "track1_cf": _aggregate_cf(cf_bs, cf_ts, base_ppl),
                 "track2_mq": _aggregate_mq(mq_bs, mq_ts),
                 "track3_zsre": _aggregate_zsre(z_bs, z_ts),
@@ -1963,11 +1848,13 @@ def main() -> None:
             print(
                 f"[{arm_name.upper()}] CF_EffEM={summary['arms'][arm_name]['track1_cf']['eff_em']['pct']}% "
                 f"CF_ParEM={summary['arms'][arm_name]['track1_cf']['par_em']['pct']}% "
+                f"CF_Routes={cf_route_tot} | "
                 f"MQ_1Hop={summary['arms'][arm_name]['track2_mq']['sh_em']['pct']}% "
                 f"MQ_2Hop={summary['arms'][arm_name]['track2_mq']['mh_em']['pct']}% (Hop1={h1_p}%, Hop2={h2_p}%) "
-                f"MQ_Routes={mq_route_tot} "
+                f"MQ_Routes={mq_route_tot} | "
                 f"ZsRE_Gen={summary['arms'][arm_name]['track3_zsre']['gen_em']['pct']}% "
-                f"ZsRE_Loc={summary['arms'][arm_name]['track3_zsre']['loc_exact']['pct']}%",
+                f"ZsRE_Loc={summary['arms'][arm_name]['track3_zsre']['loc_exact']['pct']}% "
+                f"ZsRE_Routes={zsre_route_tot}",
                 flush=True,
             )
             summary["mquake_hop_subtypes"] = _compute_hop_subtype_breakdown(summary["arms"], mq_flat)
